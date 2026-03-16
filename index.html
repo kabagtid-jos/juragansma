@@ -545,153 +545,67 @@
             }, 500);
         }
 
-        // SETUP MOCK RUNNER (KHUSUS PREVIEW OFFLINE / CANVAS)
+        // ============================================================================
+        // SETUP KONEKSI KE GOOGLE APPS SCRIPT (REST API MODE)
+        // ============================================================================
+        
+        // 1. Ganti tulisan di bawah dengan URL hasil deploy Apps Script Anda!
+        const GAS_URL = "https://script.google.com/macros/s/AKfycbwJTtJ6sXH4mKhvZ2lrGCGKOPlFmgrEKnhbpZk-jjAA7U-qj7--0s6ocAZS9MBUWWXvvA/exec";
+
+        // 2. Proxy Ajaib: Mengubah fungsi google.script.run menjadi fungsi fetch() ke Apps Script
         if (typeof window.google === 'undefined') { window.google = {}; }
         if (typeof window.google.script === 'undefined') {
-            console.warn("Menjalankan di mode preview.");
-            
-            // Variabel untuk menyimpan aktivitas di mode simulasi agar dinamis
-            let mockSessionJurnals = []; 
-
-            function createMockRunner() {
-                let onSuccess = null;
-                let onFailure = null;
-                const obj = {
-                    withSuccessHandler: function(cb) { onSuccess = cb; return obj; },
-                    withFailureHandler: function(cb) { onFailure = cb; return obj; },
-                    login: function(niy) {
-                        setTimeout(() => {
-                            if(niy === "12345" || niy === "111222" || niy === "333444" || niy === "555666") {
-                                let nama = niy === "12345" ? "Admin Juragan" : (niy === "111222" ? "Budi Santoso" : (niy === "555666" ? "Staf TU 1" : "Siti Aminah"));
-                                let role = niy === "12345" ? "Admin" : (niy === "555666" ? "TU" : "Guru");
-                                let foto = niy === "12345" ? "https://i.ibb.co.com/PvyzRgq9/Logo-SMP-Unggulan-Abu-Zairi.png" : ""; 
-                                if(onSuccess) onSuccess({ success: true, name: nama, role: role, niy: niy, photo: foto });
-                            } else {
-                                if(onSuccess) onSuccess({ success: false, message: "NIY tidak ditemukan!" });
-                            }
-                        }, 500);
-                    },
-                    getGuruNameByNIY: function(niy) {
-                        setTimeout(() => {
-                            if(niy === "12345" || niy === "111222" || niy === "333444" || niy === "555666") {
-                                let nama = niy === "12345" ? "Admin Juragan" : (niy === "111222" ? "Budi Santoso" : (niy === "555666" ? "Staf TU 1" : "Siti Aminah"));
-                                if(onSuccess) onSuccess({ success: true, name: nama, role: "Guru" });
-                            } else {
-                                if(onSuccess) onSuccess({ success: false });
-                            }
-                        }, 200);
-                    },
-                    getPublicJadwalHariIni: function() {
-                        setTimeout(() => {
-                            if(onSuccess) onSuccess({ success: true, data: [
-                                { guru: "Budi Santoso", mapel: "Matematika", kelas: "X MIPA 1", jam: "07:30 - 09:00" },
-                                { guru: "Siti Aminah", mapel: "B. Inggris", kelas: "XI IPS 2", jam: "09:30 - 11:00" }
-                            ]});
-                        }, 400);
-                    },
-                    getDashboardData: function(namaGuru) {
-                        setTimeout(() => {
-                            if(onSuccess) onSuccess({
-                                success: true,
-                                jadwal: [{ kelas: "X MIPA 1", mapel: "Matematika", jam: "1-2" }],
-                                belumIsi: ["Budi Santoso"], izin: [], siswaAbsen: []
-                            });
-                        }, 300);
-                    },
-                    getFormOptions: function(role, namaGuru) {
-                        setTimeout(() => {
-                            if(onSuccess) {
-                                if (role === 'TU') {
-                                    onSuccess({ success: true, isTU: true, kelas: ["X MIPA 1", "X MIPA 2", "XI IPS 1"], mapel: ["Matematika", "Fisika"], guru: ["Budi Santoso", "Siti Aminah"], jam: ["1","2","3","4","5","6","7","8","9","10"] });
-                                } else {
-                                    onSuccess({ success: true, isTU: false, kelas: ["X MIPA 1"], mapel: ["Matematika"], jam: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"] });
-                                }
-                            }
-                        }, 300);
-                    },
-                    getMapelData: function() {
-                        setTimeout(() => { if(onSuccess) onSuccess({ success: true, data: ["Matematika", "Fisika"] }); }, 300);
-                    },
-                    getSemuaGuru: function() {
-                        setTimeout(() => { if(onSuccess) onSuccess({ success: true, data: ["Budi Santoso", "Siti Aminah"] }); }, 300);
-                    },
-                    getSiswaData: function(kelas) {
-                        setTimeout(() => { if(onSuccess) onSuccess({ success: true, data: ["Agus", "Bambang"] }); }, 300);
-                    },
-                    saveJournal: function(data) {
-                        setTimeout(() => { 
-                            mockSessionJurnals.push(data); // Simpan input sesi ini ke memori preview
-                            if(onSuccess) onSuccess({ success: true, message: "Berhasil" }); 
-                        }, 500);
-                    },
-                    saveIzin: function(data) {
-                        setTimeout(() => { if(onSuccess) onSuccess({ success: true, message: "Berhasil" }); }, 500);
-                    },
-                    getMonthlyRecap: function() {
-                        setTimeout(() => { 
-                            // Hitung tambahan jam dari sesi ini secara dinamis
-                            let tambahanJam = 0;
-                            mockSessionJurnals.forEach(j => {
-                                let matches = String(j.jam).match(/\d+/g); // Menarik semua angka (jam)
-                                if(matches) tambahanJam += matches.length; // Jumlahkan berapa jam yg dicentang
-                            });
-
-                            // Bikin data rekap statis yang di-override nilai barunya
-                            let mockRekapArray = [
-                                { namaGuru: "Siti Aminah", totalHadir: 18, totalJurnal: 25, totalJam: 35 }
-                            ];
-
-                            if (currentUser && currentUser !== "Admin Juragan") {
-                                mockRekapArray.unshift({ 
-                                    namaGuru: currentUser, 
-                                    totalHadir: 20 + (mockSessionJurnals.length > 0 ? 1 : 0), 
-                                    totalJurnal: 30 + mockSessionJurnals.length, 
-                                    totalJam: 45 + tambahanJam // Kalkulasi ditambahkan di sini
-                                });
-                            } else {
-                                mockRekapArray.unshift({ namaGuru: "Budi Santoso", totalHadir: 20, totalJurnal: 30, totalJam: 45 + tambahanJam });
-                            }
-
-                            if(onSuccess) onSuccess({ 
-                                success: true, 
-                                rekapGuru: mockRekapArray, 
-                                siswaAbsen: [
-                                    {nama: "Rudi", kelas: "X MIPA 1", keterangan: "Sakit", tanggal: "09/03/2026", guru: "Budi Santoso"}, 
-                                    {nama: "Bambang", kelas: "X MIPA 2", keterangan: "Izin", tanggal: "10/03/2026", guru: "Siti Aminah"}
-                                ], 
-                                guruTeladan: ["Budi Santoso"] // Diubah menjadi 1 orang saja (simulasi)
-                            }); 
-                        }, 500);
-                    },
-                    getYearlyRecap: function() {
-                        setTimeout(() => { 
-                            if(onSuccess) onSuccess({ 
-                                success: true, 
-                                data: { 
-                                    summary: { totalHadirGuru: 500, totalJamEfektif: 1250 }, 
-                                    rankingGuru: [
-                                        { namaGuru: "Budi Santoso", totalHadir: 220 },
-                                        { namaGuru: "Siti Aminah", totalHadir: 215 },
-                                        { namaGuru: "Guru Lainnya", totalHadir: 190 }
-                                    ],
-                                    graphData: {
-                                        labels: ["2023", "2024", "2025", "2026"],
-                                        data: [88, 92, 95, 98]
-                                    },
-                                    guruMonthlyStats: {
-                                        "Budi Santoso": [20, 19, 22, 18, 20, 15, 21, 20, 22, 19, 20, 18],
-                                        "Siti Aminah": [18, 20, 20, 19, 18, 17, 20, 21, 19, 20, 18, 19],
-                                        "Guru Lainnya": [15, 16, 15, 18, 19, 14, 18, 15, 16, 17, 15, 16]
-                                    }
-                                } 
-                            }); 
-                        }, 500);
+            window.google.script = {
+                run: new Proxy({}, {
+                    get: function(target, prop) {
+                        if (prop === 'withSuccessHandler') return function(cb) { return createRunner(cb, null); };
+                        if (prop === 'withFailureHandler') return function(cb) { return createRunner(null, cb); };
+                        return function(...args) { executeFetch(prop, args, null, null); };
                     }
+                })
+            };
+
+            function createRunner(successCb, failureCb) {
+                let proxy;
+                let runner = {
+                    withSuccessHandler: function(cb) { successCb = cb; return proxy; },
+                    withFailureHandler: function(cb) { failureCb = cb; return proxy; }
                 };
-                return obj;
+                proxy = new Proxy(runner, {
+                    get: function(target, prop) {
+                        if (prop in target) return target[prop];
+                        return function(...args) { executeFetch(prop, args, successCb, failureCb); };
+                    }
+                });
+                return proxy;
             }
-            window.google.script = { get run() { return createMockRunner(); } };
+
+            function executeFetch(functionName, args, successCb, failureCb) {
+                if(GAS_URL === "URL_WEB_APP_ANDA_DISINI" || GAS_URL === "") {
+                    console.error("GAS_URL belum diisi!");
+                    showToast("Sistem belum dihubungkan ke Database. Isi GAS_URL di index.html");
+                    if(failureCb) failureCb(new Error("URL Web App belum diisi"));
+                    return;
+                }
+
+                const payload = { action: functionName, args: args };
+
+                fetch(GAS_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' }, 
+                    body: JSON.stringify(payload)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (successCb) successCb(data);
+                })
+                .catch(error => {
+                    console.error("Error API:", error);
+                    if (failureCb) failureCb(error);
+                });
+            }
         }
+        // ============================================================================
 
         // FUNGSI UTILITIES TAMPILAN
         function showToast(message) {
