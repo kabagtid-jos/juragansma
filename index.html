@@ -2,7 +2,6 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <!-- Meta tag ini sangat penting untuk mencegah zoom dan membatasi viewport di mobile -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Si Juragan - Jurnal Guru</title>
     <!-- Tailwind CSS untuk Styling -->
@@ -18,11 +17,11 @@
         /* PENGUNCIAN LAYAR MOBILE (Mencegah geser kanan/kiri & membal) */
         html, body { 
             width: 100%; 
-            height: 100dvh; /* Menggunakan dvh agar sesuai dengan ukuran layar HP asli termasuk address bar */
+            height: 100dvh; 
             margin: 0; 
             padding: 0; 
-            overflow: hidden; /* Mengunci total layar background */
-            overscroll-behavior-y: none; /* Mencegah efek membal/refresh saat ditarik ke bawah */
+            overflow: hidden; 
+            overscroll-behavior-y: none; 
             background-color: #f3f4f6; 
             font-family: 'Poppins', sans-serif;
         }
@@ -31,28 +30,28 @@
         #app-wrapper {
             width: 100%;
             height: 100%;
-            max-width: 448px; /* Setara max-w-md di Tailwind */
+            max-width: 448px;
             margin: 0 auto;
-            background: linear-gradient(to bottom right, #fef3c7, #d97706); /* Start dengan gradien persis seperti halaman login (Krem ke Gold) */
+            background: linear-gradient(to bottom right, #fef3c7, #d97706); 
             position: relative;
-            overflow-y: auto; /* Scroll hanya diizinkan di dalam kotak aplikasi ini */
-            overflow-x: hidden; /* Dilarang geser ke kanan/kiri */
-            -webkit-overflow-scrolling: touch; /* Smooth scroll untuk iOS */
+            overflow-y: auto; 
+            overflow-x: hidden; 
+            -webkit-overflow-scrolling: touch; 
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
             display: flex;
             flex-direction: column;
-            transition: background 0.3s ease; /* Transisi halus saat pindah view */
+            transition: background 0.3s ease; 
         }
 
         /* STRUKTUR TAMPILAN VIEW */
         .app-view { 
-            display: none !important; /* Prioritas tinggi agar view yang tidak aktif benar-benar hilang */
+            display: none !important; 
             width: 100%; 
-            min-height: 100%; /* Memastikan view memanjang ke bawah menutupi seluruh wrapper */
+            min-height: 100%; 
             flex-direction: column; 
         }
         .app-view.active { 
-            display: flex !important; /* Menampilkan view yang aktif */
+            display: flex !important; 
             animation: slideUp 0.3s ease forwards; 
         }
         @keyframes slideUp {
@@ -63,7 +62,7 @@
         /* KELAS KOMPONEN CUSTOM */
         .glass-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border-radius: 16px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); }
         .input-field { transition: all 0.3s; }
-        .input-field:focus { transform: scale(1.02); box-shadow: 0 0 0 2px rgba(217, 119, 6, 0.5); } /* Fokus border warna gold */
+        .input-field:focus { transform: scale(1.02); box-shadow: 0 0 0 2px rgba(217, 119, 6, 0.5); } 
         .loader { border: 3px solid #f3f3f3; border-radius: 50%; border-top: 3px solid #d97706; width: 24px; height: 24px; animation: spin 1s linear infinite; display: inline-block; vertical-align: middle; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         
@@ -88,7 +87,7 @@
         html.dark .bg-yellow-50 { background-color: rgba(202, 138, 4, 0.1) !important; border-color: rgba(202, 138, 4, 0.2) !important; }
         html.dark .bg-blue-50 { background-color: rgba(37, 99, 235, 0.1) !important; }
         html.dark .bg-green-50 { background-color: rgba(34, 197, 94, 0.1) !important; border-color: rgba(34, 197, 94, 0.2) !important; }
-        html.dark #view-login { background: linear-gradient(to bottom right, #78350f, #b45309) !important; } /* Dark mode cream-gold ke brown-gold */
+        html.dark #view-login { background: linear-gradient(to bottom right, #78350f, #b45309) !important; } 
 
         /* SETTING KHUSUS UNTUK PRINT PDF (A4) */
         @media print {
@@ -112,7 +111,6 @@
                 box-shadow: none !important;
                 position: static !important;
             }
-            /* Menyembunyikan view lain selain rekap tahunan */
             .app-view:not(#view-recap-yearly) {
                 display: none !important;
             }
@@ -120,19 +118,16 @@
                 display: block !important;
                 background: #ffffff !important;
             }
-            /* Menampilkan semua data guru saat dicetak */
             #print-all-gurus-container {
                 display: block !important;
             }
             #single-guru-container {
                 display: none !important;
             }
-            /* Mempertahankan warna background dan shadow pada saat cetak */
             * {
                 -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
             }
-            /* Mencegah elemen terpotong setengah halaman */
             h3 { page-break-after: avoid; }
             .bg-white, .glass-card, canvas { page-break-inside: avoid; }
             .guru-print-block { page-break-inside: avoid; margin-bottom: 20px; }
@@ -152,7 +147,7 @@
         <span id="toast-message">Pesan</span>
     </div>
 
-    <!-- WADAH APLIKASI (Area yang bisa di-scroll) -->
+    <!-- WADAH APLIKASI -->
     <div id="app-wrapper">
 
         <!-- 1. LOGIN VIEW -->
@@ -201,7 +196,6 @@
                 </div>
             </div>
             
-            <!-- FOOTER DENGAN TULISAN SESUAI REQUEST -->
             <p class="text-center text-white text-xs mt-auto pt-10 pb-6 opacity-90 flex-shrink-0 tracking-wide font-medium">
                 Made with <i class="fas fa-heart text-red-500 mx-1 animate-pulse"></i> Kabag IT P2S Abu Zairi
             </p>
@@ -212,7 +206,6 @@
             <div class="bg-gradient-to-r from-yellow-500 to-amber-600 px-5 py-5 rounded-b-3xl shadow-lg text-white relative flex-shrink-0 sticky top-0 z-20">
                 <div class="flex justify-between items-center">
                     
-                    <!-- Bagian Kiri: Profil -->
                     <div class="flex items-center">
                         <div class="w-14 h-14 rounded-full border-2 border-white border-opacity-50 overflow-hidden bg-white mr-3 shadow-sm flex-shrink-0 flex items-center justify-center">
                             <img id="dash-photo" src="" alt="Foto" class="w-full h-full object-cover" onerror="this.src='https://ui-avatars.com/api/?name=User&background=fde68a&color=92400e'">
@@ -227,7 +220,6 @@
                         </div>
                     </div>
                     
-                    <!-- Bagian Kanan: Tombol Aksi -->
                     <div class="flex space-x-2">
                         <button type="button" onclick="toggleTheme()" class="w-8 h-8 bg-white bg-opacity-20 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-opacity-30 transition shadow-sm">
                             <i id="theme-icon" class="fas fa-moon text-sm"></i>
@@ -241,7 +233,6 @@
             </div>
 
             <div class="px-6 py-6 pb-20 flex-1">
-                <!-- Menu Isi Jurnal -->
                 <div id="menu-isi-jurnal" onclick="openInputJurnal()" class="glass-card p-4 flex items-center cursor-pointer hover:shadow-lg transition transform hover:-translate-y-1 bg-white mb-6" style="display: none;">
                     <div class="w-12 h-12 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xl mr-4 transition">
                         <i class="fas fa-edit"></i>
@@ -252,7 +243,6 @@
                     </div>
                 </div>
 
-                <!-- Menu Input Izin -->
                 <div id="menu-input-izin" onclick="openInputIzin()" class="glass-card p-4 flex items-center cursor-pointer hover:shadow-lg transition transform hover:-translate-y-1 bg-white mb-6 border-l-4 border-yellow-500" style="display: none;">
                     <div class="w-12 h-12 rounded-full bg-yellow-100 text-yellow-600 flex items-center justify-center text-xl mr-4">
                         <i class="fas fa-user-clock"></i>
@@ -263,7 +253,6 @@
                     </div>
                 </div>
 
-                <!-- Admin Menu Rekap -->
                 <div id="admin-menu" class="hidden mb-6">
                     <div class="grid grid-cols-2 gap-4">
                         <div onclick="switchView('view-recap-monthly')" class="glass-card p-4 flex flex-col items-center justify-center text-center cursor-pointer hover:shadow-lg transition transform hover:-translate-y-1 bg-white">
@@ -333,7 +322,6 @@
                         </div>
                     </div>
 
-                    <!-- TU Guru Dropdown -->
                     <div id="tu-guru-container" class="mt-4 hidden">
                         <label class="block text-sm font-medium text-gray-700 mb-1">Pilih Guru yang Digantikan</label>
                         <select id="input-tu-guru" class="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none bg-white">
@@ -481,29 +469,91 @@
                     </button>
                 </div>
                 
-                <!-- Container Result -->
                 <div id="yearly-result-container" class="pb-4 print:pb-0"></div>
                 
-                <!-- Tombol Cetak PDF -->
                 <button id="btn-print-yearly" type="button" onclick="window.print()" class="w-full mt-4 bg-red-600 text-white font-semibold py-3 rounded-xl shadow-md hover:bg-red-700 transition hidden cursor-pointer print:hidden">
                     <i class="fas fa-file-pdf mr-2"></i> Cetak Jurnal Tahun Ini (PDF A4)
                 </button>
             </div>
         </div>
 
-    </div> <!-- TUTUP APP WRAPPER -->
+    </div>
 
     <script>
-        // State Management Global
+        // =========================================================================
+        // PENGATURAN API GOOGLE APPS SCRIPT (UNTUK VERCEL/GITHUB PAGES)
+        // =========================================================================
+        
+        // URL Web App GAS Anda
+        const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzi7nzle13gn7FHwYFIKipxm2422we1ZyqjUP7Y7OQE9no6kLx1ZqFaebNGVivM86ouWA/exec";
+
+        // Membuat fungsi adapter agar kode asli (google.script.run) tetap berfungsi
+        // di server eksternal menggunakan Fetch API.
+        window.google = {
+            script: {
+                get run() {
+                    let onSuccess = null;
+                    let onFailure = null;
+
+                    const runner = {
+                        withSuccessHandler: function(cb) { onSuccess = cb; return runner; },
+                        withFailureHandler: function(cb) { onFailure = cb; return runner; }
+                    };
+
+                    // Daftar semua fungsi di Backend yang bisa dipanggil
+                    const methods = [
+                        'login', 'getGuruNameByNIY', 'getPublicJadwalHariIni',
+                        'getDashboardData', 'getFormOptions', 'getMapelData',
+                        'getSemuaGuru', 'getSiswaData', 'saveJournal',
+                        'saveIzin', 'getMonthlyRecap', 'getYearlyRecap', 
+                        'getAbsensiSiswaExternal', 'generatePrintableRecap'
+                    ];
+
+                    methods.forEach(method => {
+                        runner[method] = function(...args) {
+                            if(GAS_WEB_APP_URL === "ISI_DENGAN_URL_WEB_APP_GAS_ANDA_DISINI") {
+                                alert("Sistem belum terkoneksi. Masukkan URL Web App GAS di baris 330 file index.html");
+                                if(onFailure) onFailure(new Error("URL Kosong"));
+                                return;
+                            }
+
+                            // Kirim request ke GAS menggunakan metode POST text/plain
+                            // text/plain sangat penting untuk menghindari masalah CORS di browser
+                            fetch(GAS_WEB_APP_URL, {
+                                method: 'POST',
+                                body: JSON.stringify({ action: method, args: args }),
+                                headers: {
+                                    'Content-Type': 'text/plain;charset=utf-8'
+                                }
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                if(onSuccess) onSuccess(data);
+                            })
+                            .catch(error => {
+                                console.error("API Error pada " + method + ":", error);
+                                if(onFailure) onFailure(error);
+                            });
+                        };
+                    });
+
+                    return runner;
+                }
+            }
+        };
+
+        // =========================================================================
+        // STATE MANAGEMENT & LOGIC APLIKASI
+        // =========================================================================
+
         let currentUser = null;
         let currentUserRole = null;
         let currentUserNiy = null;
         let filledJamsThisSession = [];
-        let yearlyChartInstance = null; // Menyimpan instance chart tahunan agar bisa dihancurkan saat update
-        let guruChartInstance = null; // Menyimpan instance chart guru per tahun
-        let isAppPrinting = false; // Flag status saat masuk menu print
+        let yearlyChartInstance = null; 
+        let guruChartInstance = null; 
+        let isAppPrinting = false; 
 
-        // Event listener untuk mendeteksi kapan print dipicu agar grafik merender ulang labelnya
         window.addEventListener('beforeprint', () => { 
             isAppPrinting = true; 
             if(guruChartInstance) guruChartInstance.render(); 
@@ -513,7 +563,6 @@
             if(guruChartInstance) guruChartInstance.render(); 
         });
 
-        // Fungsi Global Cek NIY
         let niyTimeout;
         function checkNIY(niyValue) {
             const previewEl = document.getElementById('nama-guru-preview');
@@ -545,69 +594,6 @@
             }, 500);
         }
 
-        // ============================================================================
-        // SETUP KONEKSI KE GOOGLE APPS SCRIPT (REST API MODE)
-        // ============================================================================
-        
-        // 1. Ganti tulisan di bawah dengan URL hasil deploy Apps Script Anda!
-        const GAS_URL = "https://script.google.com/macros/s/AKfycbwJTtJ6sXH4mKhvZ2lrGCGKOPlFmgrEKnhbpZk-jjAA7U-qj7--0s6ocAZS9MBUWWXvvA/exec";
-
-        // 2. Proxy Ajaib: Mengubah fungsi google.script.run menjadi fungsi fetch() ke Apps Script
-        if (typeof window.google === 'undefined') { window.google = {}; }
-        if (typeof window.google.script === 'undefined') {
-            window.google.script = {
-                run: new Proxy({}, {
-                    get: function(target, prop) {
-                        if (prop === 'withSuccessHandler') return function(cb) { return createRunner(cb, null); };
-                        if (prop === 'withFailureHandler') return function(cb) { return createRunner(null, cb); };
-                        return function(...args) { executeFetch(prop, args, null, null); };
-                    }
-                })
-            };
-
-            function createRunner(successCb, failureCb) {
-                let proxy;
-                let runner = {
-                    withSuccessHandler: function(cb) { successCb = cb; return proxy; },
-                    withFailureHandler: function(cb) { failureCb = cb; return proxy; }
-                };
-                proxy = new Proxy(runner, {
-                    get: function(target, prop) {
-                        if (prop in target) return target[prop];
-                        return function(...args) { executeFetch(prop, args, successCb, failureCb); };
-                    }
-                });
-                return proxy;
-            }
-
-            function executeFetch(functionName, args, successCb, failureCb) {
-                if(GAS_URL === "URL_WEB_APP_ANDA_DISINI" || GAS_URL === "") {
-                    console.error("GAS_URL belum diisi!");
-                    showToast("Sistem belum dihubungkan ke Database. Isi GAS_URL di index.html");
-                    if(failureCb) failureCb(new Error("URL Web App belum diisi"));
-                    return;
-                }
-
-                const payload = { action: functionName, args: args };
-
-                fetch(GAS_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'text/plain;charset=utf-8' }, 
-                    body: JSON.stringify(payload)
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (successCb) successCb(data);
-                })
-                .catch(error => {
-                    console.error("Error API:", error);
-                    if (failureCb) failureCb(error);
-                });
-            }
-        }
-        // ============================================================================
-
-        // FUNGSI UTILITIES TAMPILAN
         function showToast(message) {
             const toast = document.getElementById('toast');
             document.getElementById('toast-message').innerText = message;
@@ -628,7 +614,6 @@
             document.getElementById('loadingOverlay').classList.add('hidden'); 
         }
 
-        // FIX: Fungsi switchView diperbarui agar menyesuaikan background di luar (app-wrapper)
         function switchView(viewId) {
             document.querySelectorAll('.app-view').forEach(v => {
                 v.classList.remove('active');
@@ -636,20 +621,16 @@
             const target = document.getElementById(viewId);
             target.classList.add('active');
             
-            // Ubah background app-wrapper secara dinamis agar saat membal tidak memunculkan warna putih
             const wrapper = document.getElementById('app-wrapper');
             const isDark = document.documentElement.classList.contains('dark');
             
             if (viewId === 'view-login') {
-                // Menggunakan warna gradien persis sama dengan halaman login
                 wrapper.style.background = isDark ? 'linear-gradient(to bottom right, #78350f, #b45309)' : 'linear-gradient(to bottom right, #fef3c7, #d97706)';
             } else {
-                wrapper.style.background = isDark ? '#111827' : '#f9fafb'; // Abu-abu terang saat di dashboard
+                wrapper.style.background = isDark ? '#111827' : '#f9fafb';
             }
             
-            // Gulung tampilan ke atas secara otomatis saat pindah view
             wrapper.scrollTop = 0;
-            
             if (viewId === 'view-input') setTanggalHariIni();
         }
 
@@ -665,7 +646,6 @@
             } catch(e) { console.error("Set tanggal error", e); }
         }
 
-        // LOGIC APLIKASI
         function loadPublicJadwal() {
             const container = document.getElementById('public-jadwal-container');
             if(!container) return;
@@ -814,7 +794,6 @@
         function openInputJurnal() {
             showLoader("Menyiapkan form...");
             
-            // PENTING: Sembunyikan & bersihkan daftar siswa setiap kali form jurnal dibuka ulang
             document.getElementById('siswa-container').classList.add('hidden');
             document.getElementById('siswa-list').innerHTML = '';
             
@@ -822,8 +801,6 @@
                 .withSuccessHandler(function(res) {
                     hideLoader();
                     if(res && res.success) {
-                        
-                        // Setup Dropdown Guru jika Role = TU
                         if (res.isTU) {
                             document.getElementById('tu-guru-container').classList.remove('hidden');
                             document.getElementById('input-tu-guru').innerHTML = '<option value="">Pilih Guru yang Digantikan...</option>' + (res.guru || []).map(g => `<option value="${g}">${g}</option>`).join('');
@@ -831,15 +808,12 @@
                             document.getElementById('tu-guru-container').classList.add('hidden');
                         }
 
-                        // Setup Kelas
                         const ks = document.getElementById('input-kelas');
                         ks.innerHTML = '<option value="">Pilih Kelas</option>' + (res.kelas || []).map(k => `<option value="${k}">${k}</option>`).join('');
                         
-                        // Setup Mapel
                         const ms = document.getElementById('input-mapel');
                         ms.innerHTML = '<option value="">Pilih Mata Pelajaran</option>' + (res.mapel || []).map(m => `<option value="${m}">${m}</option>`).join('');
                         
-                        // Setup Checkbox Jam
                         const jcl = document.getElementById('jam-checkbox-list');
                         let availableJams = [];
                         
@@ -898,67 +872,56 @@
             }
         });
 
-        // ====================================================================
-        // FUNGSI LOAD SISWA (SUDAH DIPERBAIKI AGAR ROBUST DAN ANTI-ERROR)
-        // ====================================================================
         function loadSiswa(kelas) {
             if (!kelas) {
                 document.getElementById('siswa-container').classList.add('hidden');
                 return;
             }
             document.getElementById('siswa-container').classList.remove('hidden');
-            document.getElementById('siswa-list').innerHTML = '<div class="text-xs text-gray-500 py-3 text-center"><i class="fas fa-spinner fa-spin mr-2"></i>Memuat data siswa...</div>';
+            document.getElementById('siswa-list').innerHTML = '<div class="text-xs text-gray-500 py-3 text-center"><i class="fas fa-spinner fa-spin mr-2"></i>Sinkronisasi absensi dari pusat...</div>';
+            
+            const tanggalHariIni = document.getElementById('input-tanggal').value;
             
             google.script.run
                 .withSuccessHandler(function(res) {
-                    let dataSiswa = [];
-                    
-                    // Mengakomodasi berbagai kemungkinan format balasan dari Code.gs
-                    // Karena beberapa Code.gs mungkin mengirim array langsung tanpa properti {success: true}
-                    if (res && res.success !== undefined && res.data) {
-                        dataSiswa = res.data;
-                    } else if (Array.isArray(res)) {
-                        dataSiswa = res;
-                    } else if (res && Array.isArray(res.data)) {
-                        dataSiswa = res.data;
-                    }
-                    
-                    if (dataSiswa && dataSiswa.length > 0) {
-                        document.getElementById('siswa-list').innerHTML = dataSiswa.map(s => {
-                            // Mengakomodasi jika s berupa string, array 2D (dari Spreadsheet), atau object
-                            let namaSiswa = typeof s === 'string' ? s : 
-                                            (Array.isArray(s) ? s[0] : 
-                                            (s.nama || s.namaSiswa || s[0] || "Siswa Tidak Diketahui"));
-                            
-                            return `
-                            <div class="flex justify-between items-center text-sm border-b border-gray-100 py-2 last:border-0">
-                                <span class="text-gray-700 font-medium truncate pr-2 flex-1">${namaSiswa}</span>
-                                <select class="absensi-select text-xs p-1.5 border border-gray-300 rounded-lg bg-white focus:ring-2 focus:ring-indigo-500 outline-none w-24 flex-shrink-0 shadow-sm" data-nama="${namaSiswa}">
-                                    <option value="Hadir">Hadir</option>
-                                    <option value="Sakit">Sakit</option>
-                                    <option value="Izin">Izin</option>
-                                    <option value="Alpa">Alpa</option>
-                                </select>
-                            </div>`;
-                        }).join('');
+                    if (res && res.success) {
+                        let absenText = res.data;
+                        
+                        if (absenText !== "Nihil") {
+                            document.getElementById('siswa-list').innerHTML = `
+                            <div class="bg-red-50 border border-red-100 p-3 rounded-lg text-sm text-red-700">
+                                <strong>Siswa Tidak Hadir:</strong><br>
+                                <span id="auto-absensi-value" class="font-medium">${absenText}</span>
+                            </div>
+                            <div class="text-[10px] text-gray-400 mt-2 text-center"><i class="fas fa-info-circle"></i> Data ditarik otomatis dari Absensi Siswa.</div>`;
+                        } else {
+                            document.getElementById('siswa-list').innerHTML = `
+                            <div class="bg-green-50 border border-green-100 p-3 rounded-lg text-sm text-green-700 flex items-center">
+                                <i class="fas fa-check-circle mr-2 text-lg"></i>
+                                <span><strong id="auto-absensi-value">Nihil</strong> (Semua siswa hadir)</span>
+                            </div>
+                            <div class="text-[10px] text-gray-400 mt-2 text-center"><i class="fas fa-info-circle"></i> Data ditarik otomatis dari Absensi Siswa.</div>`;
+                        }
                     } else {
-                        document.getElementById('siswa-list').innerHTML = '<div class="text-xs text-red-500 py-2 text-center"><i class="fas fa-exclamation-circle mr-1"></i>Tidak ada data siswa untuk kelas ini.</div>';
+                        document.getElementById('siswa-list').innerHTML = `<div class="text-xs text-red-500 py-2 text-center"><i class="fas fa-exclamation-circle mr-1"></i>${res.message || 'Gagal sinkronisasi.'}</div>`;
                     }
                 })
                 .withFailureHandler(function(error) {
                     console.error("Load Siswa Error:", error);
-                    document.getElementById('siswa-list').innerHTML = '<div class="text-xs text-red-500 py-2 text-center"><i class="fas fa-times-circle mr-1"></i>Gagal terhubung ke database.</div>';
+                    document.getElementById('siswa-list').innerHTML = '<div class="text-xs text-red-500 py-2 text-center"><i class="fas fa-times-circle mr-1"></i>Gagal terhubung ke database eksternal.</div>';
                 })
-                .getSiswaData(kelas);
+                .getAbsensiSiswaExternal(tanggalHariIni, kelas);
         }
 
         function submitJournal() {
             const jams = Array.from(document.querySelectorAll('.jam-checkbox:checked')).map(cb => cb.value);
             if (!jams.length) return showToast("Pilih jam mengajar!");
             
-            const absensi = Array.from(document.querySelectorAll('.absensi-select'))
-                .filter(s => s.value !== 'Hadir')
-                .map(s => `${s.dataset.nama} (${s.value})`).join(', ');
+            let absensi = "";
+            const autoAbsensiEl = document.getElementById('auto-absensi-value');
+            if (autoAbsensiEl && autoAbsensiEl.innerText !== "Nihil") {
+                absensi = autoAbsensiEl.innerText;
+            }
                 
             const kelasVal = document.getElementById('input-kelas').value;
             const mapelVal = document.getElementById('input-mapel').value;
@@ -979,7 +942,7 @@
             const data = {
                 hari: document.getElementById('input-hari').value,
                 tanggal: document.getElementById('input-tanggal').value,
-                jam: "Jam " + jams.join(', '), // FIX: Menambahkan kata "Jam" agar tidak dibaca sebagai desimal oleh Sheets
+                jam: "Jam " + jams.join(', '), 
                 namaGuru: guruPengisi, 
                 kelas: kelasVal,
                 mapel: mapelVal,
@@ -1138,10 +1101,8 @@
                     if (res && res.success && res.data) {
                         const data = res.data; 
                         
-                        // Wrapper Halaman 1 khusus Print
                         let html = `<div class="print-page-1">`;
                         
-                        // Header Judul Khusus Untuk PDF Print dengan Logo di Kiri
                         html += `
                         <div class="hidden print:flex print:items-center print:mb-4">
                             <div class="mr-4">
@@ -1154,7 +1115,6 @@
                         </div>
                         <div class="hidden print:block w-full border-b-2 border-gray-900 mb-4"></div>`;
 
-                        // 1. SUMMARY CARDS
                         html += `<div class="grid grid-cols-2 gap-4 mb-6 print:mb-4">
                             <div class="bg-indigo-50 border border-indigo-100 rounded-xl p-4 text-center shadow-sm">
                                 <div class="text-2xl font-bold text-indigo-700">${data.summary.totalHadirGuru || 0}</div>
@@ -1166,8 +1126,6 @@
                             </div>
                         </div>`;
                         
-                        // 2. THE MOST DILIGENT TEACHER
-                        // Dibatasi tingginya saat print (max-h-[28vh] & overflow-hidden) agar tetap 1 halaman seberapapun datanya
                         html += `<h3 class="font-bold text-gray-700 text-sm mb-3 print:mb-2 border-b pb-1">Top 3 Guru Paling Rajin Tahun ${tahun}</h3>
                                  <div class="space-y-3 mb-6 print:mb-4 print:max-h-[20vh] print:overflow-hidden">`;
                         if(data.rankingGuru && data.rankingGuru.length) {
@@ -1181,7 +1139,6 @@
                         }
                         html += `</div>`;
 
-                        // 3. GRAFIK TREN KEHADIRAN (TAHUN KE TAHUN)
                         html += `<div class="w-full">
                                     <h3 class="font-bold text-gray-700 text-sm mb-3 print:mb-2 border-b pb-1">Grafik Kehadiran Guru (Tahun ke Tahun)</h3>
                                     <div class="bg-white p-4 print:p-2 rounded-xl shadow-sm mb-6 print:mb-4 border border-gray-100 relative print:h-[18vh]">
@@ -1189,7 +1146,6 @@
                                     </div>
                                  </div>`;
 
-                        // 3B. GRAFIK KEHADIRAN PER GURU
                         html += `<div class="w-full">
                                     <h3 class="font-bold text-gray-700 text-sm mb-3 print:mb-2 border-b pb-1">Grafik Total Kehadiran per Guru</h3>
                                     <div class="bg-white p-4 print:p-2 rounded-xl shadow-sm mb-6 print:mb-0 border border-gray-100 relative print:h-[18vh] print:min-h-0" style="min-height: 250px;">
@@ -1197,12 +1153,10 @@
                                     </div>
                                  </div>`;
                                  
-                        html += `</div>`; // Tutup print-page-1 wrapper
+                        html += `</div>`; 
                                  
-                        // 4. REKAP KEHADIRAN GURU PERBULAN (SEARCH & CETAK SEMUA)
                         html += `<h3 class="font-bold text-gray-700 text-sm mb-3 border-b pb-1">Rekap Kehadiran Guru Per Bulan</h3>
                                  <div class="bg-white p-4 print:p-0 rounded-xl shadow-sm mb-6 print:mb-0 print:border-none print:shadow-none border border-gray-100">
-                                     <!-- Kontrol Tampilan Antarmuka -->
                                      <div class="mb-4 print:hidden">
                                          <label class="block text-xs font-medium text-gray-500 mb-1">Pilih Guru</label>
                                          <select id="search-guru-yearly" class="w-full p-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-indigo-500 bg-gray-50">
@@ -1215,11 +1169,9 @@
                         html += `        </select>
                                      </div>
                                      
-                                     <!-- Tampilan Default (Bisa satu guru) -->
                                      <div id="single-guru-container">
                                         <div id="print-guru-label" class="hidden text-sm font-bold text-gray-800 mb-2 pb-1 border-b"></div>
                                         <div id="monthly-stats-container" class="grid grid-cols-4 gap-2 hidden">
-                                            <!-- Monthly stats populated here by JS -->
                                         </div>
                                         <div id="monthly-stats-placeholder" class="text-center text-xs text-gray-400 py-6 print:hidden">
                                             <i class="fas fa-search text-2xl mb-2 text-gray-300"></i><br>
@@ -1227,18 +1179,16 @@
                                         </div>
                                      </div>
 
-                                     <!-- Tampilan Print Khusus (Semua Guru Sekaligus) -->
                                      <div id="print-all-gurus-container" class="hidden">`;
                         
-                        // Buat daftar untuk semua guru agar saat di-print, langsung muncul semua
                         if (data.guruMonthlyStats) {
                             const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agt', 'Sep', 'Okt', 'Nov', 'Des'];
-                            let guruCounter = 0; // Tambahkan counter untuk membatasi 3 guru per halaman
+                            let guruCounter = 0; 
                             
                             Object.keys(data.guruMonthlyStats).forEach(guru => {
-                                guruCounter++; // Hitung guru saat ini
+                                guruCounter++; 
                                 const stats = data.guruMonthlyStats[guru];
-                                const totalHadir = stats.reduce((sum, current) => sum + current, 0); // Menghitung total kehadiran
+                                const totalHadir = stats.reduce((sum, current) => sum + current, 0); 
                                 
                                 html += `
                                 <div class="guru-print-block mb-6 print:mb-8">
@@ -1256,7 +1206,6 @@
                                 });
                                 
                                 html += `
-                                        <!-- Kolom Total Kehadiran Print -->
                                         <div class="col-span-4 bg-indigo-50 border border-indigo-200 rounded p-2 text-center shadow-sm mt-1">
                                             <span class="text-[11px] font-bold text-gray-600 uppercase mr-2">Total Kehadiran Tahun Ini:</span>
                                             <span class="text-sm font-extrabold text-indigo-700">${totalHadir} Hari</span>
@@ -1264,7 +1213,6 @@
                                     </div>
                                 </div>`;
                                 
-                                // Jika kelipatan 3 dan bukan guru terakhir, selipkan Page Break
                                 if (guruCounter % 3 === 0 && guruCounter < Object.keys(data.guruMonthlyStats).length) {
                                     html += `<div class="hidden print:block page-break"></div>`;
                                 }
@@ -1277,42 +1225,39 @@
                         document.getElementById('yearly-result-container').innerHTML = html;
                         document.getElementById('btn-print-yearly').classList.remove('hidden');
 
-                        // Inisialisasi Chart.js untuk Grafik Tahunan
                         if (data.graphData) {
                             const ctx = document.getElementById('yearlyChart').getContext('2d');
                             
-                            // Hancurkan chart lama jika sudah ada (mencegah error overlay)
                             if (yearlyChartInstance) {
                                 yearlyChartInstance.destroy();
                             }
 
-                            // Menghasilkan array warna bervariasi untuk setiap tahun
                             const yearBgColors = data.graphData.labels.map((_, index) => {
                                 const colors = [
-                                    'rgba(79, 70, 229, 0.7)',  // Nila (Indigo)
-                                    'rgba(14, 165, 233, 0.7)', // Biru Muda (Sky)
-                                    'rgba(16, 185, 129, 0.7)', // Hijau (Emerald)
-                                    'rgba(245, 158, 11, 0.7)', // Oranye (Amber)
-                                    'rgba(239, 68, 68, 0.7)',  // Merah
-                                    'rgba(168, 85, 247, 0.7)'  // Ungu
+                                    'rgba(79, 70, 229, 0.7)',  
+                                    'rgba(14, 165, 233, 0.7)', 
+                                    'rgba(16, 185, 129, 0.7)', 
+                                    'rgba(245, 158, 11, 0.7)', 
+                                    'rgba(239, 68, 68, 0.7)',  
+                                    'rgba(168, 85, 247, 0.7)'  
                                 ];
                                 return colors[index % colors.length];
                             });
 
                             const yearBorderColors = data.graphData.labels.map((_, index) => {
                                 const colors = [
-                                    '#4f46e5', // Nila
-                                    '#0ea5e9', // Biru Muda
-                                    '#10b981', // Hijau
-                                    '#f59e0b', // Oranye
-                                    '#ef4444', // Merah
-                                    '#a855f7'  // Ungu
+                                    '#4f46e5', 
+                                    '#0ea5e9', 
+                                    '#10b981', 
+                                    '#f59e0b', 
+                                    '#ef4444', 
+                                    '#a855f7'  
                                 ];
                                 return colors[index % colors.length];
                             });
                             
                             yearlyChartInstance = new Chart(ctx, {
-                                type: 'bar', // Bisa diubah jadi 'line' jika lebih suka grafik garis
+                                type: 'bar', 
                                 data: {
                                     labels: data.graphData.labels,
                                     datasets: [{
@@ -1332,11 +1277,9 @@
                             });
                         }
 
-                        // Inisialisasi Chart.js untuk Grafik per Guru
                         if (data.rankingGuru && data.rankingGuru.length > 0) {
                             const ctxGuru = document.getElementById('guruChart').getContext('2d');
                             
-                            // Hancurkan chart lama jika sudah ada (mencegah error overlay)
                             if (guruChartInstance) {
                                 guruChartInstance.destroy();
                             }
@@ -1344,29 +1287,28 @@
                             const guruLabels = data.rankingGuru.map(g => g.namaGuru);
                             const guruData = data.rankingGuru.map(g => g.totalHadir);
                             
-                            // Menghasilkan array warna yang berbeda untuk setiap guru
                             const backgroundColors = guruLabels.map((_, index) => {
                                 const colors = [
-                                    'rgba(16, 185, 129, 0.7)', // Hijau (Emerald)
-                                    'rgba(239, 68, 68, 0.7)',  // Merah
-                                    'rgba(245, 158, 11, 0.7)', // Oranye (Amber)
-                                    'rgba(59, 130, 246, 0.7)', // Biru
-                                    'rgba(168, 85, 247, 0.7)', // Ungu
-                                    'rgba(236, 72, 153, 0.7)', // Merah Muda
-                                    'rgba(14, 165, 233, 0.7)'  // Biru Muda (Sky)
+                                    'rgba(16, 185, 129, 0.7)', 
+                                    'rgba(239, 68, 68, 0.7)',  
+                                    'rgba(245, 158, 11, 0.7)', 
+                                    'rgba(59, 130, 246, 0.7)', 
+                                    'rgba(168, 85, 247, 0.7)', 
+                                    'rgba(236, 72, 153, 0.7)', 
+                                    'rgba(14, 165, 233, 0.7)'  
                                 ];
-                                return colors[index % colors.length]; // Mengulang warna jika jumlah guru lebih banyak dari jumlah warna
+                                return colors[index % colors.length]; 
                             });
 
                             const borderColors = guruLabels.map((_, index) => {
                                 const colors = [
-                                    '#10b981', // Hijau
-                                    '#ef4444', // Merah
-                                    '#f59e0b', // Oranye
-                                    '#3b82f6', // Biru
-                                    '#a855f7', // Ungu
-                                    '#ec4899', // Merah Muda
-                                    '#0ea5e9'  // Biru Muda
+                                    '#10b981', 
+                                    '#ef4444', 
+                                    '#f59e0b', 
+                                    '#3b82f6', 
+                                    '#a855f7', 
+                                    '#ec4899', 
+                                    '#0ea5e9'  
                                 ];
                                 return colors[index % colors.length];
                             });
@@ -1378,7 +1320,7 @@
                                     datasets: [{
                                         label: 'Total Hadir (Hari)',
                                         data: guruData,
-                                        backgroundColor: backgroundColors, // Menggunakan array warna yang bervariasi
+                                        backgroundColor: backgroundColors, 
                                         borderColor: borderColors,
                                         borderWidth: 1,
                                         borderRadius: 4
@@ -1396,7 +1338,7 @@
                                         x: { 
                                             grid: { display: false },
                                             ticks: { 
-                                                display: false, // Menyembunyikan nama guru dari sumbu X agar hanya muncul saat diklik (tooltip)
+                                                display: false, 
                                                 autoSkip: false, 
                                                 maxRotation: 0, 
                                                 minRotation: 0 
@@ -1407,7 +1349,6 @@
                                 plugins: [{
                                     id: 'barLabelsOnPrint',
                                     afterDatasetsDraw(chart) {
-                                        // Hanya gambar teks di dalam bar ketika masuk mode cetak (print)
                                         if (!isAppPrinting && !window.matchMedia('print').matches) return;
                                         
                                         const { ctx, data } = chart;
@@ -1416,19 +1357,16 @@
                                             const val = data.datasets[0].data[index];
                                             const barHeight = bar.base - bar.y;
                                             
-                                            // Render tulisan hanya jika nilai > 0 dan bar cukup tinggi untuk menampung teks
                                             if (val > 0 && barHeight > 25) { 
                                                 ctx.save();
-                                                ctx.translate(bar.x, bar.base - 8); // Mulai dari bawah bar agak ke atas sedikit
-                                                ctx.rotate(-Math.PI / 2); // Putar teks 90 derajat ke atas
-                                                ctx.fillStyle = '#ffffff'; // Warna teks putih
+                                                ctx.translate(bar.x, bar.base - 8); 
+                                                ctx.rotate(-Math.PI / 2); 
+                                                ctx.fillStyle = '#ffffff'; 
                                                 ctx.font = 'bold 11px Poppins, sans-serif';
                                                 ctx.textAlign = 'left';
                                                 ctx.textBaseline = 'middle';
-                                                // Berikan efek bayangan hitam tipis agar teks lebih jelas terbaca jika warna bar cerah
                                                 ctx.shadowColor = 'rgba(0,0,0,0.5)';
                                                 ctx.shadowBlur = 3;
-                                                // Batasi panjang teks maksimal sesuai tinggi bar
                                                 const labelText = `${label} (${val})`;
                                                 ctx.fillText(labelText, 0, 0, barHeight - 16);
                                                 ctx.restore();
@@ -1439,7 +1377,6 @@
                             });
                         }
 
-                        // Event Listener untuk Search/Dropdown Guru (Berlaku hanya untuk tampilan layar)
                         const searchGuruSelect = document.getElementById('search-guru-yearly');
                         searchGuruSelect.addEventListener('change', function() {
                             const selectedGuru = this.value;
@@ -1449,12 +1386,11 @@
 
                             if (selectedGuru && data.guruMonthlyStats[selectedGuru]) {
                                 const stats = data.guruMonthlyStats[selectedGuru];
-                                const totalHadir = stats.reduce((sum, current) => sum + current, 0); // Menghitung total kehadiran
+                                const totalHadir = stats.reduce((sum, current) => sum + current, 0); 
                                 const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agt', 'Sep', 'Okt', 'Nov', 'Des'];
                                 let statsHtml = '';
                                 
                                 stats.forEach((val, idx) => {
-                                    // Beri warna khusus jika kehadiran 0
                                     const textColor = val > 0 ? 'text-indigo-600' : 'text-red-400';
                                     const bgColor = val > 0 ? 'bg-white' : 'bg-gray-50';
                                     
@@ -1465,7 +1401,6 @@
                                     </div>`;
                                 });
                                 
-                                // Tambahkan Total Kehadiran Layar
                                 statsHtml += `
                                 <div class="col-span-4 bg-indigo-50 border border-indigo-200 rounded p-2 text-center shadow-sm mt-1">
                                     <span class="text-[11px] font-bold text-gray-600 uppercase mr-2">Total Kehadiran Tahun Ini:</span>
@@ -1519,7 +1454,6 @@
             const isDark = html.classList.contains('dark');
             try { localStorage.theme = isDark ? 'dark' : 'light'; } catch(e) {}
             
-            // FIX: Update warna wrapper juga saat theme di-toggle
             const activeView = document.querySelector('.app-view.active').id;
             const wrapper = document.getElementById('app-wrapper');
             if (activeView === 'view-login') {
@@ -1532,7 +1466,6 @@
         window.addEventListener('DOMContentLoaded', () => {
             try { setTanggalHariIni(); } catch(e){}
             loadPublicJadwal();
-            // Inisialisasi awal warna background app-wrapper saat reload
             switchView('view-login'); 
         });
     </script>
