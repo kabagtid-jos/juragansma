@@ -87,6 +87,8 @@
         html.dark .bg-yellow-50 { background-color: rgba(202, 138, 4, 0.1) !important; border-color: rgba(202, 138, 4, 0.2) !important; }
         html.dark .bg-blue-50 { background-color: rgba(37, 99, 235, 0.1) !important; }
         html.dark .bg-green-50 { background-color: rgba(34, 197, 94, 0.1) !important; border-color: rgba(34, 197, 94, 0.2) !important; }
+        html.dark .bg-red-50 { background-color: rgba(239, 68, 68, 0.1) !important; border-color: rgba(239, 68, 68, 0.2) !important; }
+        html.dark .bg-teal-50 { background-color: rgba(20, 184, 166, 0.1) !important; border-color: rgba(20, 184, 166, 0.2) !important; }
         html.dark #view-login { background: linear-gradient(to bottom right, #78350f, #b45309) !important; } 
 
         /* SETTING KHUSUS UNTUK PRINT PDF (A4) */
@@ -145,6 +147,26 @@
     <!-- TOAST NOTIFICATION -->
     <div id="toast" class="fixed top-4 left-1/2 transform -translate-x-1/2 z-[100] bg-gray-800 text-white px-6 py-3 rounded-xl shadow-lg hidden transition-opacity duration-300 opacity-0 text-sm font-medium w-max max-w-[90%] text-center">
         <span id="toast-message">Pesan</span>
+    </div>
+
+    <!-- AGENDA MODAL -->
+    <div id="agendaModal" class="fixed inset-0 bg-black bg-opacity-60 z-[110] flex items-center justify-center hidden opacity-0 transition-opacity duration-300 px-4">
+        <div class="bg-white rounded-2xl w-full max-w-sm overflow-hidden shadow-2xl transform scale-95 transition-transform duration-300 relative">
+            <div class="bg-gradient-to-r from-teal-500 to-emerald-600 p-6 text-center text-white relative">
+                <button type="button" onclick="closeAgendaModal()" class="absolute top-3 right-3 text-white hover:text-gray-200"><i class="fas fa-times text-lg"></i></button>
+                <div class="w-16 h-16 bg-white bg-opacity-20 rounded-full flex items-center justify-center mx-auto mb-3 shadow-inner">
+                    <i class="fas fa-bell text-3xl text-white animate-pulse"></i>
+                </div>
+                <h2 class="text-xl font-bold leading-tight">Agenda Hari Ini!</h2>
+                <p class="text-xs text-teal-100 mt-1" id="agenda-modal-date"></p>
+            </div>
+            <div class="p-5 max-h-60 overflow-y-auto custom-scrollbar bg-gray-50" id="agenda-modal-content">
+                <!-- Agenda items injected here -->
+            </div>
+            <div class="p-4 bg-white border-t border-gray-100">
+                <button type="button" onclick="closeAgendaModal()" class="w-full bg-gray-100 hover:bg-gray-200 text-gray-800 font-semibold py-2.5 rounded-xl transition text-sm">Tutup</button>
+            </div>
+        </div>
     </div>
 
     <!-- WADAH APLIKASI -->
@@ -250,6 +272,16 @@
                     <div>
                         <h3 class="font-bold text-gray-800">Input Guru Izin</h3>
                         <p class="text-xs text-gray-500">Catat ketidakhadiran guru hari ini</p>
+                    </div>
+                </div>
+
+                <div id="menu-kalender" onclick="openKalender()" class="glass-card p-4 flex items-center cursor-pointer hover:shadow-lg transition transform hover:-translate-y-1 bg-white mb-6 border-l-4 border-teal-500">
+                    <div class="w-12 h-12 rounded-full bg-teal-100 text-teal-600 flex items-center justify-center text-xl mr-4">
+                        <i class="fas fa-calendar-alt"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-gray-800">Kalender Pendidikan</h3>
+                        <p class="text-xs text-gray-500">Lihat agenda kegiatan sekolah</p>
                     </div>
                 </div>
 
@@ -419,6 +451,63 @@
             </div>
         </div>
 
+        <!-- 3C. KALENDER PENDIDIKAN -->
+        <div id="view-kalender" class="app-view bg-gray-50">
+            <div class="bg-white shadow-sm px-4 py-4 flex items-center sticky top-0 z-10 flex-shrink-0">
+                <button type="button" onclick="switchView('view-dashboard')" class="text-gray-600 hover:text-teal-600 p-2"><i class="fas fa-arrow-left text-lg"></i></button>
+                <h2 class="ml-3 font-semibold text-gray-800">Kalender Pendidikan</h2>
+            </div>
+            <div class="p-6 flex-1 pb-20">
+                
+                <!-- Form Input (Admin Only) -->
+                <div id="admin-agenda-form" class="mb-6 hidden">
+                    <div class="bg-teal-50 border-l-4 border-teal-400 p-4 rounded-r-lg mb-4 text-sm text-teal-800 font-medium flex items-start">
+                        <i class="fas fa-shield-alt mt-0.5 mr-2"></i> Mode Admin: Anda dapat menambahkan agenda kegiatan sekolah di sini.
+                    </div>
+                    <form id="agendaForm" onsubmit="event.preventDefault(); submitAgenda();" class="glass-card bg-white p-4">
+                        <div class="mb-3">
+                            <label class="block text-xs font-medium text-gray-700 mb-1">Tanggal Kegiatan</label>
+                            <input type="date" id="agenda-tanggal" class="w-full p-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-500 bg-gray-50" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="block text-xs font-medium text-gray-700 mb-1">Judul Agenda</label>
+                            <input type="text" id="agenda-judul" placeholder="Contoh: Pembagian Raport Semester Ganjil" class="w-full p-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-500" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="block text-xs font-medium text-gray-700 mb-1">Keterangan (Opsional)</label>
+                            <textarea id="agenda-keterangan" rows="2" placeholder="Detail kegiatan atau peserta..." class="w-full p-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-teal-500"></textarea>
+                        </div>
+                        <button type="submit" class="w-full bg-teal-600 text-white font-semibold py-2.5 rounded-lg shadow hover:bg-teal-700 transition text-sm cursor-pointer">
+                            <i class="fas fa-plus-circle mr-1"></i> Simpan Agenda
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Grid Kalender UI -->
+                <div class="bg-white rounded-xl shadow-sm mb-6 border border-gray-100 overflow-hidden">
+                    <div class="flex items-center justify-between px-4 py-3 border-b border-gray-100 bg-white">
+                        <button type="button" onclick="changeMonth(-1)" class="text-teal-600 w-8 h-8 flex items-center justify-center hover:bg-teal-50 rounded-full transition"><i class="fas fa-chevron-left"></i></button>
+                        <h3 id="calendar-month-year" class="font-bold text-gray-800 text-sm">Bulan Tahun</h3>
+                        <button type="button" onclick="changeMonth(1)" class="text-teal-600 w-8 h-8 flex items-center justify-center hover:bg-teal-50 rounded-full transition"><i class="fas fa-chevron-right"></i></button>
+                    </div>
+                    <div class="grid grid-cols-7 gap-0 text-center text-[10px] font-semibold text-gray-500 py-2 border-b border-gray-100 bg-gray-50">
+                        <div>Ahad</div><div>Senin</div><div>Selasa</div><div>Rabu</div><div>Kamis</div><div class="text-red-500 font-bold">Jumat</div><div>Sabtu</div>
+                    </div>
+                    <div id="calendar-grid" class="grid grid-cols-7 gap-1 p-2 text-sm bg-white">
+                        <!-- Kotak Tanggal Akan Dirender Disini Oleh JS -->
+                    </div>
+                </div>
+
+                <!-- List Agenda -->
+                <div class="flex items-center justify-between mb-3">
+                    <h3 class="text-gray-800 font-bold text-sm flex items-center"><i class="fas fa-list-ul mr-2 text-teal-600"></i> Agenda Kegiatan</h3>
+                </div>
+                <div id="agenda-list-container" class="space-y-3">
+                    <div class="text-center text-gray-400 py-4 text-xs"><i class="fas fa-spinner fa-spin mr-1"></i> Memuat agenda...</div>
+                </div>
+            </div>
+        </div>
+
         <!-- 4. REKAP BULANAN -->
         <div id="view-recap-monthly" class="app-view bg-gray-50">
             <div class="bg-white shadow-sm px-4 py-4 flex items-center sticky top-0 z-10 flex-shrink-0">
@@ -485,7 +574,7 @@
         // =========================================================================
         
         // URL Web App GAS Anda
-        const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzi7nzle13gn7FHwYFIKipxm2422we1ZyqjUP7Y7OQE9no6kLx1ZqFaebNGVivM86ouWA/exec";
+        const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwHrh2BSjCp0rIOA3DftG72hFyD8KgKDUHk3W_M8ZYroCjBaB7ZETt1pGTov3sFr7CUIw/exec";
 
         // Membuat fungsi adapter agar kode asli (google.script.run) tetap berfungsi
         // di server eksternal menggunakan Fetch API.
@@ -506,7 +595,8 @@
                         'getDashboardData', 'getFormOptions', 'getMapelData',
                         'getSemuaGuru', 'getSiswaData', 'saveJournal',
                         'saveIzin', 'getMonthlyRecap', 'getYearlyRecap', 
-                        'getAbsensiSiswaExternal', 'generatePrintableRecap'
+                        'getAbsensiSiswaExternal', 'generatePrintableRecap',
+                        'getAgendas', 'saveAgenda'
                     ];
 
                     methods.forEach(method => {
@@ -649,6 +739,21 @@
         function loadPublicJadwal() {
             const container = document.getElementById('public-jadwal-container');
             if(!container) return;
+
+            // Cek apakah hari ini adalah hari Jumat (5)
+            const today = new Date();
+            if (today.getDay() === 5) {
+                container.innerHTML = `
+                    <div class="bg-white bg-opacity-20 backdrop-blur-md border border-white border-opacity-30 p-5 rounded-2xl text-white shadow-lg text-center transform transition duration-500 hover:scale-[1.02]">
+                        <div class="w-14 h-14 mx-auto bg-green-400 bg-opacity-20 rounded-full flex items-center justify-center mb-3">
+                            <i class="fas fa-mosque text-3xl text-green-300 drop-shadow-md"></i>
+                        </div>
+                        <h4 class="font-bold text-lg tracking-wide mb-1">Jumat Mubarok</h4>
+                        <p class="text-[11px] text-white text-opacity-90 leading-relaxed">Hari libur pesantren.<br>Mari perbanyak amal ibadah dan shalawat.</p>
+                    </div>`;
+                return; // Hentikan eksekusi
+            }
+
             container.innerHTML = `<div class="text-center text-white text-opacity-70 text-xs py-4"><i class="fas fa-spinner fa-spin mr-2"></i>Memuat jadwal...</div>`;
 
             google.script.run
@@ -676,11 +781,84 @@
                 .getPublicJadwalHariIni();
         }
 
+        // OPTIMASI: Fungsi render dashboard dipisah agar bisa disuplai data bawaan (bundled) dari login
+        function renderDashboardData(res) {
+            const jc = document.getElementById('jadwal-container');
+            const bc = document.getElementById('belum-isi-container');
+            const ic = document.getElementById('izin-container');
+            const sac = document.getElementById('siswa-absen-container');
+
+            if(currentUserRole === 'Guru') {
+                let btnJurnal = document.getElementById('menu-isi-jurnal');
+                let hasSchedule = res.jadwal && res.jadwal.length > 0;
+                let isPending = res.belumIsi && res.belumIsi.some(g => {
+                    let rawG = String(g).trim(); let pureName = rawG.includes(" (") ? rawG.split(" (")[0].trim() : rawG;
+                    return pureName === String(currentUser).trim();
+                });
+                
+                if (new Date().getDay() === 5) { 
+                    btnJurnal.onclick = () => showToast("Hari Jumat libur, tidak ada pengisian jurnal."); 
+                    btnJurnal.classList.add('opacity-60', 'cursor-not-allowed'); 
+                }
+                else if (!hasSchedule) { btnJurnal.onclick = () => showToast("Anda tidak ada jadwal hari ini."); btnJurnal.classList.add('opacity-60', 'cursor-not-allowed'); }
+                else if (!isPending) { btnJurnal.onclick = () => showToast("Semua jurnal sudah diisi."); btnJurnal.classList.add('opacity-60', 'cursor-not-allowed'); }
+                else { btnJurnal.onclick = () => openInputJurnal(); btnJurnal.classList.remove('opacity-60', 'cursor-not-allowed'); }
+            }
+
+            if (new Date().getDay() === 5) {
+                jc.innerHTML = `
+                <div class="bg-green-50 border border-green-200 rounded-xl p-4 text-center shadow-sm">
+                    <i class="fas fa-mosque text-3xl text-green-500 mb-2"></i>
+                    <h4 class="font-bold text-green-800 text-sm">Jumat Mubarok</h4>
+                    <p class="text-xs text-green-600 mt-1">Hari libur pesantren.</p>
+                </div>`;
+            } else {
+                jc.innerHTML = (res.jadwal && res.jadwal.length) ? res.jadwal.map(j => `
+                    <div class="bg-white border border-gray-100 rounded-lg p-3 shadow-sm flex justify-between items-center border-l-4 border-l-blue-500">
+                        <div><h4 class="font-bold text-gray-800 text-sm">${j.mapel}</h4><p class="text-xs text-gray-500">${j.kelas} ${currentUserRole === 'TU' ? ' ('+j.guru+')' : ''}</p></div>
+                        <div class="text-xs font-semibold text-blue-600 bg-blue-50 px-2 py-1 rounded">${j.jam}</div>
+                    </div>`).join('') : '<div class="bg-gray-50 rounded-lg p-3 text-center text-xs text-gray-500">Tidak ada jadwal hari ini</div>';
+            }
+
+            bc.innerHTML = (res.belumIsi && res.belumIsi.length) ? res.belumIsi.map(g => `<li>• ${g}</li>`).join('') : '<li class="text-green-500"><i class="fas fa-check"></i> Semua guru sudah isi</li>';
+            ic.innerHTML = (res.izin && res.izin.length) ? res.izin.map(g => `<li>• ${g}</li>`).join('') : '<li>Tidak ada guru izin</li>';
+            
+            sac.innerHTML = (res.siswaAbsen && res.siswaAbsen.length) ? res.siswaAbsen.map(s => {
+                let badge = s.keterangan === 'Sakit' ? 'bg-yellow-100 text-yellow-700' : (s.keterangan === 'Izin' ? 'bg-blue-100 text-blue-700' : 'bg-red-100 text-red-700');
+                return `<li class="flex justify-between items-center border-b border-gray-50 pb-2 last:border-0 last:pb-0">
+                    <div><span class="font-semibold text-gray-700">${s.nama}</span><span class="text-[10px] text-gray-400 ml-1">(${s.kelas})</span></div>
+                    <span class="text-[10px] px-2 py-0.5 rounded-full font-bold ${badge}">${s.keterangan}</span>
+                </li>`;
+            }).join('') : '<li class="text-green-500 text-xs"><i class="fas fa-check-circle"></i> Semua siswa hadir</li>';
+        }
+
+        function loadDashboardData() {
+            const jc = document.getElementById('jadwal-container');
+            const bc = document.getElementById('belum-isi-container');
+            const ic = document.getElementById('izin-container');
+            const sac = document.getElementById('siswa-absen-container');
+            
+            jc.innerHTML = '<div class="text-xs text-gray-500 text-center py-2">Memuat...</div>';
+            bc.innerHTML = '<li class="text-xs text-gray-500">Memuat...</li>';
+            ic.innerHTML = '<li class="text-xs text-gray-500">Memuat...</li>';
+            sac.innerHTML = '<li class="text-xs text-gray-500">Memuat...</li>';
+
+            google.script.run
+                .withSuccessHandler(function(res) {
+                    if(res && res.success) renderDashboardData(res);
+                    else jc.innerHTML = '<p class="text-xs text-red-500">Gagal memuat data</p>'; 
+                })
+                .withFailureHandler(function() {
+                    jc.innerHTML = '<p class="text-xs text-red-500">Koneksi terputus</p>';
+                })
+                .getDashboardData(currentUserRole === 'TU' ? 'ALL' : currentUser);
+        }
+
         function handleLogin() {
             const niyInput = document.getElementById('niy');
             if(!niyInput || !niyInput.value.trim()) return showToast("NIY kosong!");
             
-            showLoader("Mengecek NIY...");
+            showLoader("Menyiapkan Data Anda...");
             google.script.run
                 .withSuccessHandler(function(res) {
                     hideLoader();
@@ -723,7 +901,20 @@
                         document.getElementById('loginForm').reset();
                         switchView('view-dashboard');
                         showToast("Login berhasil!");
-                        loadDashboardData();
+                        
+                        // OPTIMASI: Langsung pakai data bawaan (bundled data) dari respon login
+                        if (res.dashData && res.dashData.success) renderDashboardData(res.dashData);
+                        else loadDashboardData(); // fallback jika gagal bundle
+
+                        // OPTIMASI: Langsung pakai agenda bawaan
+                        if (res.agendas && res.agendas.success) {
+                            globalAgendas = res.agendas.data || [];
+                            if (res.agendas.todayAgendas && res.agendas.todayAgendas.length > 0) {
+                                showAgendaModal(res.agendas.todayAgendas);
+                            }
+                        } else {
+                            checkTodayAgenda();
+                        }
                     } else {
                         showToast(res ? res.message : "Gagal Login");
                     }
@@ -732,63 +923,6 @@
                     hideLoader(); showToast("Terjadi kesalahan jaringan.");
                 })
                 .login(niyInput.value);
-        }
-
-        function loadDashboardData() {
-            const jc = document.getElementById('jadwal-container');
-            const bc = document.getElementById('belum-isi-container');
-            const ic = document.getElementById('izin-container');
-            const sac = document.getElementById('siswa-absen-container');
-            
-            jc.innerHTML = '<div class="text-xs text-gray-500 text-center py-2">Memuat...</div>';
-            bc.innerHTML = '<li class="text-xs text-gray-500">Memuat...</li>';
-            ic.innerHTML = '<li class="text-xs text-gray-500">Memuat...</li>';
-            sac.innerHTML = '<li class="text-xs text-gray-500">Memuat...</li>';
-
-            google.script.run
-                .withSuccessHandler(function(res) {
-                    if(res && res.success) {
-                        if(currentUserRole === 'Guru') {
-                            let btnJurnal = document.getElementById('menu-isi-jurnal');
-                            let hasSchedule = res.jadwal && res.jadwal.length > 0;
-                            let isPending = res.belumIsi && res.belumIsi.some(g => g === currentUser || g.startsWith(currentUser + " ("));
-                            
-                            if (!hasSchedule) {
-                                btnJurnal.onclick = () => showToast("Anda tidak ada jadwal hari ini.");
-                                btnJurnal.classList.add('opacity-60', 'cursor-not-allowed');
-                            } else if (!isPending) {
-                                btnJurnal.onclick = () => showToast("Semua jurnal sudah diisi.");
-                                btnJurnal.classList.add('opacity-60', 'cursor-not-allowed');
-                            } else {
-                                btnJurnal.onclick = () => openInputJurnal();
-                                btnJurnal.classList.remove('opacity-60', 'cursor-not-allowed');
-                            }
-                        }
-
-                        jc.innerHTML = (res.jadwal && res.jadwal.length) ? res.jadwal.map(j => `
-                            <div class="bg-white border border-gray-100 rounded-lg p-3 shadow-sm flex justify-between items-center border-l-4 border-l-blue-500">
-                                <div><h4 class="font-bold text-gray-800 text-sm">${j.mapel}</h4><p class="text-xs text-gray-500">${j.kelas} ${currentUserRole === 'TU' ? ' ('+j.guru+')' : ''}</p></div>
-                                <div class="text-xs font-semibold text-blue-600 bg-blue-50 px-2 py-1 rounded">${j.jam}</div>
-                            </div>`).join('') : '<div class="bg-gray-50 rounded-lg p-3 text-center text-xs text-gray-500">Tidak ada jadwal hari ini</div>';
-
-                        bc.innerHTML = (res.belumIsi && res.belumIsi.length) ? res.belumIsi.map(g => `<li>• ${g}</li>`).join('') : '<li class="text-green-500"><i class="fas fa-check"></i> Semua guru sudah isi</li>';
-                        ic.innerHTML = (res.izin && res.izin.length) ? res.izin.map(g => `<li>• ${g}</li>`).join('') : '<li>Tidak ada guru izin</li>';
-                        
-                        sac.innerHTML = (res.siswaAbsen && res.siswaAbsen.length) ? res.siswaAbsen.map(s => {
-                            let badge = s.keterangan === 'Sakit' ? 'bg-yellow-100 text-yellow-700' : (s.keterangan === 'Izin' ? 'bg-blue-100 text-blue-700' : 'bg-red-100 text-red-700');
-                            return `<li class="flex justify-between items-center border-b border-gray-50 pb-2 last:border-0 last:pb-0">
-                                <div><span class="font-semibold text-gray-700">${s.nama}</span><span class="text-[10px] text-gray-400 ml-1">(${s.kelas})</span></div>
-                                <span class="text-[10px] px-2 py-0.5 rounded-full font-bold ${badge}">${s.keterangan}</span>
-                            </li>`;
-                        }).join('') : '<li class="text-green-500 text-xs"><i class="fas fa-check-circle"></i> Semua siswa hadir</li>';
-                    } else {
-                        jc.innerHTML = '<p class="text-xs text-red-500">Gagal memuat data</p>';
-                    }
-                })
-                .withFailureHandler(function() {
-                    jc.innerHTML = '<p class="text-xs text-red-500">Koneksi terputus</p>';
-                })
-                .getDashboardData(currentUserRole === 'TU' ? 'ALL' : currentUser);
         }
 
         function openInputJurnal() {
@@ -1006,6 +1140,241 @@
                 .withFailureHandler(function(){ hideLoader(); showToast("Koneksi gagal."); })
                 .saveIzin(data);
         }
+
+        // --- FITUR KALENDER PENDIDIKAN ---
+        function checkTodayAgenda() {
+            google.script.run
+                .withSuccessHandler(function(res) {
+                    if(res && res.success && res.todayAgendas && res.todayAgendas.length > 0) {
+                        showAgendaModal(res.todayAgendas);
+                    }
+                })
+                .withFailureHandler(e => console.log("Gagal cek agenda", e))
+                .getAgendas();
+        }
+
+        function showAgendaModal(agendas) {
+            const modal = document.getElementById('agendaModal');
+            const content = document.getElementById('agenda-modal-content');
+            const dateEl = document.getElementById('agenda-modal-date');
+            
+            const today = new Date();
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            dateEl.innerText = today.toLocaleDateString('id-ID', options);
+            
+            content.innerHTML = agendas.map(a => `
+                <div class="mb-3 last:mb-0 bg-white p-3 rounded-lg border-l-4 border-teal-500 shadow-sm text-left">
+                    <h4 class="font-bold text-gray-800 text-sm">${a.judul}</h4>
+                    ${a.keterangan ? `<p class="text-xs text-gray-600 mt-1 leading-relaxed">${a.keterangan}</p>` : ''}
+                </div>
+            `).join('');
+            
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                modal.querySelector('div').classList.remove('scale-95');
+                modal.querySelector('div').classList.add('scale-100');
+            }, 10);
+        }
+
+        function closeAgendaModal() {
+            const modal = document.getElementById('agendaModal');
+            modal.classList.add('opacity-0');
+            modal.querySelector('div').classList.remove('scale-100');
+            modal.querySelector('div').classList.add('scale-95');
+            setTimeout(() => modal.classList.add('hidden'), 300);
+        }
+
+        let currentDateView = new Date();
+        let globalAgendas = [];
+
+        function openKalender() {
+            switchView('view-kalender');
+            if(currentUserRole === 'Admin') {
+                document.getElementById('admin-agenda-form').classList.remove('hidden');
+                document.getElementById('agenda-tanggal').valueAsDate = new Date();
+            } else {
+                document.getElementById('admin-agenda-form').classList.add('hidden');
+            }
+            
+            currentDateView = new Date(); 
+            
+            // OPTIMASI: Langsung render jika data sudah ada (Cepat/Tanpa Loading)
+            if (globalAgendas && globalAgendas.length > 0) {
+                renderCalendar();
+                renderAgendaList();
+            } else {
+                loadAgendas();
+            }
+        }
+
+        function loadAgendas() {
+            const container = document.getElementById('agenda-list-container');
+            const grid = document.getElementById('calendar-grid');
+            
+            container.innerHTML = '<div class="text-center text-gray-400 py-4 text-xs"><i class="fas fa-spinner fa-spin mr-1"></i> Memuat daftar agenda...</div>';
+            grid.innerHTML = '<div class="col-span-7 text-center text-gray-400 py-6 text-xs"><i class="fas fa-spinner fa-spin"></i></div>';
+            
+            google.script.run
+                .withSuccessHandler(function(res) {
+                    if(res && res.success) {
+                        globalAgendas = res.data || [];
+                        renderCalendar();
+                        renderAgendaList();
+                    } else {
+                        container.innerHTML = '<div class="text-center text-red-400 py-4 text-xs">Gagal memuat agenda.</div>';
+                        grid.innerHTML = '<div class="col-span-7 text-center text-red-400 py-4 text-xs">Gagal memuat kalender.</div>';
+                    }
+                })
+                .withFailureHandler(function() {
+                    container.innerHTML = '<div class="text-center text-red-400 py-4 text-xs">Koneksi terputus.</div>';
+                    grid.innerHTML = '<div class="col-span-7 text-center text-red-400 py-4 text-xs">Koneksi terputus.</div>';
+                })
+                .getAgendas();
+        }
+
+        function changeMonth(direction) {
+            currentDateView.setMonth(currentDateView.getMonth() + direction);
+            renderCalendar();
+            renderAgendaList();
+        }
+
+        function renderCalendar() {
+            const year = currentDateView.getFullYear();
+            const month = currentDateView.getMonth();
+            const today = new Date();
+
+            const monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+            document.getElementById('calendar-month-year').innerText = `${monthNames[month]} ${year}`;
+
+            // Ambil hari pertama di bulan ini (0 = Ahad, 1 = Senin, dst)
+            const firstDay = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+            let gridHtml = '';
+
+            // Blank space untuk hari sebelum tanggal 1
+            for (let i = 0; i < firstDay; i++) {
+                gridHtml += `<div class="aspect-square flex items-center justify-center p-1"></div>`;
+            }
+
+            // Render tanggal
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dateStr = `${year}-${String(month+1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                
+                // Cek apakah tanggal ini ada agenda
+                const dayAgendas = globalAgendas.filter(a => a.tanggal === dateStr);
+                const hasAgenda = dayAgendas.length > 0;
+                
+                // Titik penanda jika ada event
+                let dotHtml = '';
+                if (hasAgenda) {
+                    dotHtml = `<div class="w-1.5 h-1.5 rounded-full bg-teal-500 absolute bottom-1 shadow-sm"></div>`; 
+                }
+
+                const isToday = (day === today.getDate() && month === today.getMonth() && year === today.getFullYear());
+                const isFriday = new Date(year, month, day).getDay() === 5; // Hari Jumat (5)
+                
+                let baseClasses = "relative flex flex-col items-center justify-center aspect-square rounded-xl cursor-pointer transition-all duration-200 hover:bg-gray-100 ";
+                // Warnai HANYA Jumat dengan merah
+                let textClasses = isFriday ? "text-red-500 font-bold" : "text-gray-700 font-medium";
+
+                if (isToday) {
+                    baseClasses += "border-2 border-teal-500 bg-teal-50 shadow-inner ";
+                    textClasses = "text-teal-800 font-extrabold";
+                } else if (hasAgenda) {
+                    textClasses += " font-bold";
+                }
+
+                // text-lg agar angka terlihat lebih besar
+                gridHtml += `
+                    <div class="${baseClasses}" onclick="scrollToAgenda('${dateStr}')">
+                        <span class="${textClasses} text-lg mb-1">${day}</span>
+                        ${dotHtml}
+                    </div>`;
+            }
+            document.getElementById('calendar-grid').innerHTML = gridHtml;
+        }
+
+        function renderAgendaList() {
+            const container = document.getElementById('agenda-list-container');
+            const year = currentDateView.getFullYear();
+            const month = currentDateView.getMonth();
+
+            // Filter agenda HANYA untuk bulan yang sedang dilihat di kalender
+            const monthlyAgendas = globalAgendas.filter(a => {
+                const d = new Date(a.tanggal);
+                return d.getFullYear() === year && d.getMonth() === month;
+            });
+
+            if(monthlyAgendas.length === 0) {
+                 container.innerHTML = '<div class="bg-white p-4 rounded-xl shadow-sm text-center text-gray-500 text-xs border border-gray-100">Tidak ada kegiatan di bulan ini.</div>';
+                 return;
+            }
+
+            container.innerHTML = monthlyAgendas.map(a => {
+                const d = new Date(a.tanggal);
+                const monthShort = new Intl.DateTimeFormat('id-ID', { month: 'short' }).format(d);
+                const day = d.getDate();
+                const dayName = new Intl.DateTimeFormat('id-ID', { weekday: 'long' }).format(d);
+
+                return `
+                <div id="agenda-${a.tanggal}" class="flex items-start mb-3 bg-white p-3.5 rounded-xl shadow-sm border border-gray-100 transition-all duration-300">
+                    <div class="flex flex-col items-center justify-center min-w-[3.5rem] p-1.5 border border-gray-200 rounded-lg mr-3 bg-gray-50 shadow-inner">
+                        <span class="text-[10px] text-gray-500 font-medium uppercase tracking-wider">${monthShort}</span>
+                        <span class="text-xl font-bold text-teal-600 leading-none mt-0.5">${day}</span>
+                    </div>
+                    <div class="flex-1 pt-0.5">
+                        <h4 class="font-bold text-gray-800 text-sm leading-tight">${a.judul}</h4>
+                        <p class="text-[11px] text-gray-500 mt-1.5 flex items-center"><i class="fas fa-calendar-day mr-1.5 opacity-70"></i> ${dayName}, ${d.toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'})}</p>
+                        ${a.keterangan ? `<div class="mt-2 text-[11px] text-gray-600 bg-gray-50 p-2 rounded border border-gray-100 flex items-start"><i class="fas fa-info-circle mt-0.5 mr-1.5 text-gray-400"></i><span class="leading-relaxed">${a.keterangan}</span></div>` : ''}
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        function scrollToAgenda(dateStr) {
+            const el = document.getElementById(`agenda-${dateStr}`);
+            if(el) {
+                // Scroll animasi ke div agenda
+                el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                // Animasi berkedip (highlight)
+                el.classList.add('ring-2', 'ring-teal-400', 'bg-teal-50');
+                setTimeout(() => {
+                    el.classList.remove('ring-2', 'ring-teal-400', 'bg-teal-50');
+                }, 1500);
+            } else {
+                // Jika tanggal diklik tapi tidak ada agenda
+                const d = new Date(dateStr);
+                const formatted = d.toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'});
+                showToast(`Tidak ada kegiatan di tanggal ${formatted}`);
+            }
+        }
+
+        function submitAgenda() {
+            const data = {
+                tanggal: document.getElementById('agenda-tanggal').value,
+                judul: document.getElementById('agenda-judul').value,
+                keterangan: document.getElementById('agenda-keterangan').value
+            };
+            if(!data.tanggal || !data.judul) return showToast("Tanggal dan Judul wajib diisi!");
+            
+            showLoader("Menyimpan agenda...");
+            google.script.run
+                .withSuccessHandler(function(res) {
+                    hideLoader();
+                    if(res && res.success) {
+                        showToast("Agenda berhasil disimpan!");
+                        document.getElementById('agendaForm').reset();
+                        // Ubah view kalender ke bulan agenda yang baru saja ditambahkan
+                        currentDateView = new Date(data.tanggal);
+                        loadAgendas(); // Reload daftar dan kalender
+                    } else { showToast("Gagal menyimpan agenda."); }
+                })
+                .withFailureHandler(function() { hideLoader(); showToast("Koneksi gagal."); })
+                .saveAgenda(data);
+        }
+        // --- END KALENDER PENDIDIKAN ---
 
         function loadMonthlyRecap() {
             const bulan = document.getElementById('filter-month').value;
