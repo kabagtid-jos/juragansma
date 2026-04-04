@@ -498,7 +498,7 @@
         // PENGATURAN API GOOGLE APPS SCRIPT
         // =========================================================================
         // Menggunakan URL Web App GAS terbaru sesuai permintaan
-        const GAS_API_URL = "https://script.google.com/macros/s/AKfycbz9qYJj3-WtBmYCLjj7ULIp-WW7W97MUjWs3ZHPHvA3NTB8oqaicOdUeB52lTzPZgtzCg/exec";
+        const GAS_API_URL = "https://script.google.com/macros/s/AKfycbzNnOsvY5hmTdqxlEdSFHe8hcByAC6dMcEYuS0GiN37ytqAkFUDauMURMGZ7565dYybhg/exec";
 
         // Fungsi pembungkus untuk memanggil Google Apps Script API via fetch()
         function callAPI(action, payload = null) {
@@ -1157,7 +1157,7 @@
                     let gridHtml = `
                     <div id="print-header-grid" class="hidden print:block w-full mb-4" style="break-after: avoid; page-break-after: avoid;">
                         <div class="flex items-center mb-4">
-                            <div class="mr-4"><img src="https://i.ibb.co.com/PvyzRgq9/Logo-SMP-Unggulan-Abu-Zairi.png" alt="Logo SMP" class="w-16 h-16 object-contain"></div>
+                            <div class="mr-4"><img src="https://i.ibb.co.com/8n9zH3y4/Logo-SMA-Unggulan-Abu-Zairi.png" alt="Logo SMA" class="w-16 h-16 object-contain"></div>
                             <div class="flex-1">
                                 <h2 class="text-xl font-bold text-gray-900 leading-tight">Rekapitulasi Kehadiran Bulanan Guru<br>SMA Unggulan Abu Zairi</h2>
                                 <p class="text-gray-800 font-semibold mt-1">Periode: ${bulanFormat}</p>
@@ -1276,7 +1276,7 @@
                     let summaryHtml = `
                     <div id="print-header-summary" class="hidden print:block w-full mb-4" style="break-after: avoid; page-break-after: avoid;">
                         <div class="flex items-center mb-4">
-                            <div class="mr-4"><img src="https://i.ibb.co.com/PvyzRgq9/Logo-SMP-Unggulan-Abu-Zairi.png" alt="Logo SMP" class="w-16 h-16 object-contain"></div>
+                            <div class="mr-4"><img src="https://i.ibb.co.com/8n9zH3y4/Logo-SMA-Unggulan-Abu-Zairi.png" alt="Logo SMA" class="w-16 h-16 object-contain"></div>
                             <div class="flex-1">
                                 <h2 class="text-xl font-bold text-gray-900 leading-tight">Rekapitulasi Kehadiran Bulanan Guru<br>SMA Unggulan Abu Zairi</h2>
                                 <p class="text-gray-800 font-semibold mt-1">Periode: ${bulanFormat}</p>
@@ -1286,7 +1286,7 @@
                         <div class="w-full border-b-2 border-gray-900"></div>
                     </div>`;
 
-                    summaryHtml += `<div class="bg-indigo-50 p-4 rounded-xl shadow-sm mb-4 print:bg-white print:p-0 print:shadow-none print:border-none print:mb-0" style="break-before: avoid; page-break-before: avoid;">
+                    summaryHtml += `<div id="print-summary" class="bg-indigo-50 p-4 rounded-xl shadow-sm mb-4 print:bg-white print:p-0 print:shadow-none print:border-none print:mb-0" style="break-before: avoid; page-break-before: avoid;">
                         <div class="flex justify-between items-center mb-3 border-b border-indigo-200 pb-2 print:hidden">
                             <h3 class="font-bold text-sm text-indigo-800"><i class="fas fa-clipboard-list mr-2"></i>Rekap Sesi & Jam</h3>
                             <button type="button" onclick="copyTableToClipboard('tabel-gaji')" class="text-[10px] bg-white border border-indigo-200 text-indigo-600 hover:bg-indigo-600 hover:text-white px-2 py-1 rounded shadow-sm transition print:hidden"><i class="fas fa-copy mr-1"></i>Salin Excel</button>
@@ -1332,7 +1332,7 @@
                     
                     let totalSiswaAbsenUnik = Object.keys(absenMap).length;
                     
-                    // MENYEMBUNYIKAN DAFTAR SISWA SAAT DIPRINT (Dengan class print:hidden)
+                    // DAFTAR SISWA ABSEN DISAJIKAN NAMUN DIHIDDEN KETIKA PRINT (via print:hidden)
                     summaryHtml += `<div id="print-absen-siswa" class="bg-white border border-gray-200 p-4 rounded-xl shadow-sm print:hidden"><div class="flex justify-between items-center mb-3 border-b pb-1"><h3 class="font-bold text-sm text-gray-800">Siswa Tidak Hadir Bulan Ini</h3><span class="text-[10px] font-bold bg-red-100 text-red-600 px-2 py-0.5 rounded-full">Total: ${totalSiswaAbsenUnik} Anak</span></div><ul class="space-y-3">`;
                     if (totalSiswaAbsenUnik > 0) {
                         for (let namaSiswa in absenMap) {
@@ -1431,7 +1431,7 @@
                 hideLoader();
                 if (res && res.success && res.data) {
                     const data = res.data; 
-                    let html = `<div class="print-page-1"><div class="hidden print:flex print:items-center print:mb-4"><div class="mr-4"><img src="https://i.ibb.co.com/PvyzRgq9/Logo-SMP-Unggulan-Abu-Zairi.png" alt="Logo SMA" class="w-16 h-16 object-contain"></div><div class="flex-1"><h2 class="text-xl font-bold text-gray-900 leading-tight">Laporan Jurnal Tahunan Guru<br>SMA Unggulan Abu Zairi</h2><p class="text-gray-800 font-semibold mt-1">Tahun ${tahun}</p></div></div><div class="hidden print:block w-full border-b-2 border-gray-900 mb-4"></div>`;
+                    let html = `<div class="print-page-1"><div class="hidden print:flex print:items-center print:mb-4"><div class="mr-4"><img src="https://i.ibb.co.com/8n9zH3y4/Logo-SMA-Unggulan-Abu-Zairi.png" alt="Logo SMA" class="w-16 h-16 object-contain"></div><div class="flex-1"><h2 class="text-xl font-bold text-gray-900 leading-tight">Laporan Jurnal Tahunan Guru<br>SMA Unggulan Abu Zairi</h2><p class="text-gray-800 font-semibold mt-1">Tahun ${tahun}</p></div></div><div class="hidden print:block w-full border-b-2 border-gray-900 mb-4"></div>`;
 
                     html += `<div class="grid grid-cols-2 gap-4 mb-6 print:mb-4"><div class="bg-indigo-50 border border-indigo-100 rounded-xl p-4 text-center shadow-sm"><div class="text-2xl font-bold text-indigo-700">${data.summary.totalHadirGuru || 0}</div><div class="text-[10px] font-semibold text-indigo-500 uppercase mt-1">Total Hadir Guru</div></div><div class="bg-green-50 border border-green-100 rounded-xl p-4 text-center shadow-sm"><div class="text-2xl font-bold text-green-600">${data.summary.totalJamEfektif || 0}</div><div class="text-[10px] font-semibold text-green-500 uppercase mt-1">Total Jam Efektif</div></div></div>`;
                     
