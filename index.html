@@ -523,6 +523,9 @@
             if(guruChartInstance) guruChartInstance.render(); 
             const styleDynamic = document.getElementById('print-style-dynamic');
             if (styleDynamic) styleDynamic.remove();
+            
+            // PASTIKAN SEMUA KELAS PRINT DIHAPUS SETELAH SELESAI
+            document.body.classList.remove('printing-yearly', 'printing-monthly', 'print-mode-grid', 'print-mode-summary');
         });
 
         window.addEventListener('beforeprint', () => { 
@@ -1380,9 +1383,11 @@
             }
             style.innerHTML = '@media print { @page { size: A4 landscape; margin: 10mm; } }';
             
-            document.body.classList.add('print-mode-grid');
+            // Menambahkan 'printing-monthly' agar layout flex dihentikan dan mencegah tabel terpotong
+            document.body.classList.add('print-mode-grid', 'printing-monthly');
             setTimeout(() => {
                 window.print();
+                document.body.classList.remove('print-mode-grid', 'printing-monthly');
             }, 50);
         }
 
@@ -1398,9 +1403,11 @@
             }
             style.innerHTML = '@media print { @page { size: A4 portrait; margin: 15mm; } }';
             
-            document.body.classList.add('print-mode-summary');
+            // Menambahkan 'printing-monthly' agar layout flex dihentikan dan mencegah tabel terpotong
+            document.body.classList.add('print-mode-summary', 'printing-monthly');
             setTimeout(() => {
                 window.print();
+                document.body.classList.remove('print-mode-summary', 'printing-monthly');
             }, 50);
         }
 
