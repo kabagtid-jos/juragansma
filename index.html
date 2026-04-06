@@ -1636,8 +1636,7 @@
             document.body.classList.add('print-mode-grid', 'printing-monthly');
             setTimeout(() => {
                 window.print();
-                document.body.classList.remove('print-mode-grid', 'printing-monthly');
-            }, 50);
+            }, 300); // Waktu jeda diperpanjang agar browser merender halaman sepenuhnya sebelum dialog print muncul
         }
 
         // =======================================================
@@ -1656,8 +1655,7 @@
             document.body.classList.add('print-mode-summary', 'printing-monthly');
             setTimeout(() => {
                 window.print();
-                document.body.classList.remove('print-mode-summary', 'printing-monthly');
-            }, 50);
+            }, 300);
         }
 
         // =======================================================
@@ -1676,8 +1674,7 @@
             
             setTimeout(() => {
                 window.print();
-                document.body.classList.remove('printing-yearly');
-            }, 50);
+            }, 300);
         }
 
         function loadYearlyRecap() {
@@ -1709,7 +1706,7 @@
                              
                     html += `<h3 class="font-bold text-gray-700 text-sm mb-3 border-b pb-1">Rekap Kehadiran Guru Per Bulan</h3><div class="bg-white p-4 print:p-0 rounded-xl shadow-sm mb-6 print:mb-0 print:border-none print:shadow-none border border-gray-100"><div class="mb-4 print:hidden"><label class="block text-xs font-medium text-gray-500 mb-1">Pilih Guru</label><select id="search-guru-yearly" class="w-full p-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-indigo-500 bg-gray-50"><option value="">-- Silakan Pilih Guru --</option>`;
                     if (data.guruMonthlyStats) Object.keys(data.guruMonthlyStats).forEach(guru => { html += `<option value="${guru}">${guru}</option>`; });
-                    html += `</select></div><div id="single-guru-container"><div id="print-guru-label" class="hidden text-sm font-bold text-gray-800 mb-2 pb-1 border-b"></div><div id="monthly-stats-container" class="grid grid-cols-4 gap-2 hidden"></div><div id="monthly-stats-placeholder" class="text-center text-xs text-gray-400 py-6 print:hidden"><i class="fas fa-search text-2xl mb-2 text-gray-300"></i><br>Pilih guru dari daftar di atas untuk melihat<br>rekap kehadiran per bulannya.</div></div><div id="print-all-gurus-container" class="hidden">`;
+                    html += `</select></div><div id="single-guru-container" class="print:hidden"><div id="print-guru-label" class="hidden text-sm font-bold text-gray-800 mb-2 pb-1 border-b"></div><div id="monthly-stats-wrapper" class="hidden"><div id="monthly-stats-container" class="grid grid-cols-4 gap-2"></div></div><div id="monthly-stats-placeholder" class="text-center text-xs text-gray-400 py-6 print:hidden"><i class="fas fa-search text-2xl mb-2 text-gray-300"></i><br>Pilih guru dari daftar di atas untuk melihat<br>rekap kehadiran per bulannya.</div></div><div id="print-all-gurus-container" class="hidden print:block w-full">`;
                     
                     if (data.guruMonthlyStats) {
                         const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agt', 'Sep', 'Okt', 'Nov', 'Des'];
@@ -1743,7 +1740,15 @@
                         yearlyChartInstance = new Chart(ctx, {
                             type: 'bar',
                             data: { labels: data.graphData.labels, datasets: [{ label: 'Total Kehadiran (Hari)', data: data.graphData.data, backgroundColor: yearBgColors, borderColor: yearBorderColors, borderWidth: 1, borderRadius: 4 }] },
-                            options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+                            options: { 
+                                responsive: true, 
+                                plugins: { 
+                                    legend: { display: false },
+                                    tooltip: { enabled: true, callbacks: { label: function(context) { return 'Total Kehadiran: ' + context.raw + ' Hari'; } } }
+                                }, 
+                                scales: { y: { beginAtZero: true } },
+                                interaction: { mode: 'index', axis: 'x', intersect: false }
+                            }
                         });
                     }
 
@@ -1759,7 +1764,16 @@
                         guruChartInstance = new Chart(ctxGuru, {
                             type: 'bar',
                             data: { labels: guruLabels, datasets: [{ label: 'Total Hadir (Hari)', data: guruData, backgroundColor: guruLabels.map((_, i) => bgColors[i % bgColors.length]), borderColor: guruLabels.map((_, i) => bdColors[i % bdColors.length]), borderWidth: 1, borderRadius: 4 }] },
-                            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { enabled: true } }, scales: { y: { beginAtZero: true }, x: { grid: { display: false }, ticks: { display: false } } } },
+                            options: { 
+                                responsive: true, 
+                                maintainAspectRatio: false, 
+                                plugins: { 
+                                    legend: { display: false }, 
+                                    tooltip: { enabled: true, callbacks: { title: function(ctx) { return 'Nama Guru: ' + ctx[0].label; }, label: function(ctx) { return 'Total Hadir: ' + ctx.raw + ' Hari'; } } } 
+                                }, 
+                                scales: { y: { beginAtZero: true }, x: { grid: { display: false }, ticks: { display: false } } },
+                                interaction: { mode: 'index', axis: 'x', intersect: false }
+                            },
                             plugins: [{
                                 id: 'barLabelsOnPrint',
                                 afterDatasetsDraw(chart) {
@@ -1780,6 +1794,7 @@
                     const searchGuruSelect = document.getElementById('search-guru-yearly');
                     searchGuruSelect.addEventListener('change', function() {
                         const selectedGuru = this.value;
+                        const statsWrapper = document.getElementById('monthly-stats-wrapper');
                         const statsContainer = document.getElementById('monthly-stats-container');
                         const placeholder = document.getElementById('monthly-stats-placeholder');
                         const printLabel = document.getElementById('print-guru-label');
@@ -1798,9 +1813,16 @@
                             
                             statsHtml += `<div class="col-span-4 bg-indigo-50 border border-indigo-200 rounded p-2 text-center shadow-sm mt-1"><span class="text-[11px] font-bold text-gray-600 uppercase mr-2">Total Kehadiran Tahun Ini:</span><span class="text-sm font-extrabold text-indigo-700">${totalHadir} Hari</span></div>`;
                             
-                            statsContainer.innerHTML = statsHtml; statsContainer.classList.remove('hidden'); placeholder.classList.add('hidden'); printLabel.classList.remove('hidden'); printLabel.innerText = "Rincian Kehadiran: " + selectedGuru;
+                            statsContainer.innerHTML = statsHtml; 
+                            statsWrapper.classList.remove('hidden'); 
+                            placeholder.classList.add('hidden'); 
+                            printLabel.classList.remove('hidden'); 
+                            printLabel.innerText = "Rincian Kehadiran: " + selectedGuru;
                         } else {
-                            statsContainer.classList.add('hidden'); placeholder.classList.remove('hidden'); printLabel.classList.add('hidden'); printLabel.innerText = "";
+                            statsWrapper.classList.add('hidden'); 
+                            placeholder.classList.remove('hidden'); 
+                            printLabel.classList.add('hidden'); 
+                            printLabel.innerText = "";
                         }
                     });
 
