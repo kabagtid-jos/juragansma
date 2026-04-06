@@ -1686,7 +1686,8 @@
                     const data = res.data; 
                     let html = `<div class="print-page-1"><div class="hidden print:flex print:items-center print:mb-4"><div class="mr-4"><img src="https://i.ibb.co.com/8n9zH3y4/Logo-SMA-Unggulan-Abu-Zairi.png" alt="Logo SMA" class="w-16 h-16 object-contain"></div><div class="flex-1"><h2 class="text-xl font-bold text-gray-900 leading-tight">Laporan Jurnal Tahunan Guru<br>SMA Unggulan Abu Zairi</h2><p class="text-gray-800 font-semibold mt-1">Tahun ${tahun}</p></div></div><div class="hidden print:block w-full border-b-2 border-gray-900 mb-4"></div>`;
 
-                    html += `<div class="grid grid-cols-2 gap-4 mb-6 print:mb-4"><div class="bg-indigo-50 border border-indigo-100 rounded-xl p-4 text-center shadow-sm"><div class="text-2xl font-bold text-indigo-700">${data.summary.totalHadirGuru || 0}</div><div class="text-[10px] font-semibold text-indigo-500 uppercase mt-1">Total Hadir Guru</div></div><div class="bg-green-50 border border-green-100 rounded-xl p-4 text-center shadow-sm"><div class="text-2xl font-bold text-green-600">${data.summary.totalJamEfektif || 0}</div><div class="text-[10px] font-semibold text-green-500 uppercase mt-1">Total Jam Efektif</div></div></div>`;
+                    // Menambahkan Optional Chaining (?.) untuk mencegah error jika data summary kosong
+                    html += `<div class="grid grid-cols-2 gap-4 mb-6 print:mb-4"><div class="bg-indigo-50 border border-indigo-100 rounded-xl p-4 text-center shadow-sm"><div class="text-2xl font-bold text-indigo-700">${data?.summary?.totalHadirGuru || 0}</div><div class="text-[10px] font-semibold text-indigo-500 uppercase mt-1">Total Hadir Guru</div></div><div class="bg-green-50 border border-green-100 rounded-xl p-4 text-center shadow-sm"><div class="text-2xl font-bold text-green-600">${data?.summary?.totalJamEfektif || 0}</div><div class="text-[10px] font-semibold text-green-500 uppercase mt-1">Total Jam Efektif</div></div></div>`;
                     
                     html += `<h3 class="font-bold text-gray-700 text-sm mb-3 print:mb-2 border-b pb-1">Top 3 Guru Paling Rajin Tahun ${tahun}</h3><div class="space-y-3 mb-6 print:mb-4 print:max-h-[20vh] print:overflow-hidden">`;
                     if(data.rankingGuru && data.rankingGuru.length) {
@@ -1729,7 +1730,7 @@
                     document.getElementById('yearly-result-container').innerHTML = html;
                     document.getElementById('btn-print-yearly').classList.remove('hidden');
 
-                    if (data.graphData) {
+                    if (data.graphData && data.graphData.labels) {
                         const ctx = document.getElementById('yearlyChart').getContext('2d');
                         if (yearlyChartInstance) yearlyChartInstance.destroy();
                         const colors = ['rgba(79, 70, 229, 0.7)', 'rgba(14, 165, 233, 0.7)', 'rgba(16, 185, 129, 0.7)', 'rgba(245, 158, 11, 0.7)', 'rgba(239, 68, 68, 0.7)', 'rgba(168, 85, 247, 0.7)'];
@@ -1777,7 +1778,7 @@
                             plugins: [{
                                 id: 'barLabelsOnPrint',
                                 afterDatasetsDraw(chart) {
-                                    if (!isAppPrinting && !window.matchMedia('print').matches) return;
+                                    if (!document.body.classList.contains('printing-yearly') && !window.matchMedia('print').matches) return;
                                     const { ctx, data } = chart;
                                     chart.getDatasetMeta(0).data.forEach((bar, index) => {
                                         const label = data.labels[index]; const val = data.datasets[0].data[index]; const barHeight = bar.base - bar.y;
@@ -1792,42 +1793,48 @@
                     }
 
                     const searchGuruSelect = document.getElementById('search-guru-yearly');
-                    searchGuruSelect.addEventListener('change', function() {
-                        const selectedGuru = this.value;
-                        const statsWrapper = document.getElementById('monthly-stats-wrapper');
-                        const statsContainer = document.getElementById('monthly-stats-container');
-                        const placeholder = document.getElementById('monthly-stats-placeholder');
-                        const printLabel = document.getElementById('print-guru-label');
+                    if(searchGuruSelect) {
+                        searchGuruSelect.addEventListener('change', function() {
+                            const selectedGuru = this.value;
+                            const statsWrapper = document.getElementById('monthly-stats-wrapper');
+                            const statsContainer = document.getElementById('monthly-stats-container');
+                            const placeholder = document.getElementById('monthly-stats-placeholder');
+                            const printLabel = document.getElementById('print-guru-label');
 
-                        if (selectedGuru && data.guruMonthlyStats[selectedGuru]) {
-                            const stats = data.guruMonthlyStats[selectedGuru];
-                            const totalHadir = stats.reduce((sum, current) => sum + current, 0); 
-                            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agt', 'Sep', 'Okt', 'Nov', 'Des'];
-                            let statsHtml = '';
-                            
-                            stats.forEach((val, idx) => {
-                                const textColor = val > 0 ? 'text-indigo-600' : 'text-red-400';
-                                const bgColor = val > 0 ? 'bg-white' : 'bg-gray-50';
-                                statsHtml += `<div class="${bgColor} border border-gray-200 rounded p-2 text-center shadow-sm"><div class="text-[10px] font-semibold text-gray-500 uppercase border-b pb-1 mb-1">${months[idx]}</div><div class="text-sm font-bold ${textColor}">${val} <span class="text-[9px] font-normal text-gray-400">hr</span></div></div>`;
-                            });
-                            
-                            statsHtml += `<div class="col-span-4 bg-indigo-50 border border-indigo-200 rounded p-2 text-center shadow-sm mt-1"><span class="text-[11px] font-bold text-gray-600 uppercase mr-2">Total Kehadiran Tahun Ini:</span><span class="text-sm font-extrabold text-indigo-700">${totalHadir} Hari</span></div>`;
-                            
-                            statsContainer.innerHTML = statsHtml; 
-                            statsWrapper.classList.remove('hidden'); 
-                            placeholder.classList.add('hidden'); 
-                            printLabel.classList.remove('hidden'); 
-                            printLabel.innerText = "Rincian Kehadiran: " + selectedGuru;
-                        } else {
-                            statsWrapper.classList.add('hidden'); 
-                            placeholder.classList.remove('hidden'); 
-                            printLabel.classList.add('hidden'); 
-                            printLabel.innerText = "";
-                        }
-                    });
+                            if (selectedGuru && data.guruMonthlyStats[selectedGuru]) {
+                                const stats = data.guruMonthlyStats[selectedGuru];
+                                const totalHadir = stats.reduce((sum, current) => sum + current, 0); 
+                                const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agt', 'Sep', 'Okt', 'Nov', 'Des'];
+                                let statsHtml = '';
+                                
+                                stats.forEach((val, idx) => {
+                                    const textColor = val > 0 ? 'text-indigo-600' : 'text-red-400';
+                                    const bgColor = val > 0 ? 'bg-white' : 'bg-gray-50';
+                                    statsHtml += `<div class="${bgColor} border border-gray-200 rounded p-2 text-center shadow-sm"><div class="text-[10px] font-semibold text-gray-500 uppercase border-b pb-1 mb-1">${months[idx]}</div><div class="text-sm font-bold ${textColor}">${val} <span class="text-[9px] font-normal text-gray-400">hr</span></div></div>`;
+                                });
+                                
+                                statsHtml += `<div class="col-span-4 bg-indigo-50 border border-indigo-200 rounded p-2 text-center shadow-sm mt-1"><span class="text-[11px] font-bold text-gray-600 uppercase mr-2">Total Kehadiran Tahun Ini:</span><span class="text-sm font-extrabold text-indigo-700">${totalHadir} Hari</span></div>`;
+                                
+                                statsContainer.innerHTML = statsHtml; 
+                                statsWrapper.classList.remove('hidden'); 
+                                placeholder.classList.add('hidden'); 
+                                printLabel.classList.remove('hidden'); 
+                                printLabel.innerText = "Rincian Kehadiran: " + selectedGuru;
+                            } else {
+                                statsWrapper.classList.add('hidden'); 
+                                placeholder.classList.remove('hidden'); 
+                                printLabel.classList.add('hidden'); 
+                                printLabel.innerText = "";
+                            }
+                        });
+                    }
 
                 } else showToast("Gagal memuat rekap.");
-            }).catch(() => { hideLoader(); showToast("Koneksi terputus."); });
+            }).catch((err) => { 
+                console.error("Kesalahan Parsing/Data:", err);
+                hideLoader(); 
+                showToast("Koneksi terputus atau terjadi kesalahan data."); 
+            });
         }
 
         function cetakRekap() {
