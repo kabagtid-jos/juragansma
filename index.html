@@ -641,13 +641,29 @@
         // Menggunakan URL Web App GAS terbaru sesuai permintaan
         const GAS_API_URL = "https://script.google.com/macros/s/AKfycbwjgeezHbqu-ruHHgYdCdaXlwTJbMG_4n5_B3SLwJ7Z479xcsTZaN1VYyXqojOVJM5izQ/exec";
 
+        // FITUR BARU: Sistem Cache Lokal untuk Mempercepat Loading Data
+        const appCache = {};
+
         // Fungsi pembungkus untuk memanggil Google Apps Script API via fetch()
-        function callAPI(action, payload = null) {
+        function callAPI(action, payload = null, useCache = false) {
+            const cacheKey = action + '_' + (payload ? JSON.stringify(payload) : 'none');
+            
+            // Jika useCache aktif dan data sudah ada di cache, langsung kembalikan data tanpa harus nembak server (Sangat Cepat)
+            if (useCache && appCache[cacheKey]) {
+                return Promise.resolve(appCache[cacheKey]);
+            }
+
             return fetch(GAS_API_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                 body: JSON.stringify({ action: action, payload: payload })
-            }).then(response => response.json());
+            }).then(response => response.json()).then(data => {
+                // Simpan ke cache jika request sukses dan fitur cache diaktifkan
+                if (useCache && data && data.success) {
+                    appCache[cacheKey] = data; 
+                }
+                return data;
+            });
         }
 
         // =========================================================================
@@ -744,7 +760,8 @@
             previewEl.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> Mencari data...';
 
             niyTimeout = setTimeout(() => {
-                callAPI('getGuruNameByNIY', niyValue).then(res => {
+                // Gunakan cache (true) agar NIY yang pernah diketik langsung muncul namanya tanpa loading lama
+                callAPI('getGuruNameByNIY', niyValue, true).then(res => {
                     if(res && res.success) {
                         previewEl.className = "mt-2 text-sm text-green-600 font-medium";
                         previewEl.innerHTML = '<i class="fas fa-check-circle mr-1"></i> Halo, ' + res.name;
@@ -753,7 +770,7 @@
                         previewEl.innerHTML = '<i class="fas fa-times-circle mr-1"></i> NIY tidak terdaftar';
                     }
                 }).catch(() => previewEl.classList.add('hidden'));
-            }, 500);
+            }, 300); // Waktu tunda dipercepat dari 500ms ke 300ms agar lebih responsif
         }
 
         function loadPublicJadwal() {
@@ -784,7 +801,8 @@
 
             container.innerHTML = `<div class="text-center text-white text-opacity-70 text-xs py-4"><i class="fas fa-spinner fa-spin mr-2"></i>Memuat jadwal...</div>`;
 
-            callAPI('getPublicJadwalHariIni').then(res => {
+            // Gunakan Cache untuk Jadwal Publik (Kecuali hari berganti, refresh browser akan menghapus cache)
+            callAPI('getPublicJadwalHariIni', null, true).then(res => {
                 if(res && res.success && res.data && res.data.length > 0) {
                     container.innerHTML = res.data.map(j => `
                         <div class="bg-white bg-opacity-10 backdrop-blur-md border border-white border-opacity-20 p-3 rounded-xl text-white shadow-sm mb-2">
@@ -964,7 +982,8 @@
             
             const jkKelas = document.getElementById('filter-jk-kelas');
             if (jkKelas.options.length <= 1) {
-                callAPI('getSemuaKelas').then(res => {
+                // Gunakan Cache untuk mempercepat pemuatan daftar kelas
+                callAPI('getSemuaKelas', null, true).then(res => {
                     if (res && res.success && res.data) {
                         jkKelas.innerHTML = '<option value="">Pilih Kelas</option>' + res.data.map(k => `<option value="${k}">${k}</option>`).join('');
                     }
@@ -1036,7 +1055,8 @@
             document.getElementById('hidden-absen-otomatis').value = '';
             document.getElementById('status-absen-otomatis').innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Menunggu kelas dipilih...';
             
-            callAPI('getFormOptions', { role: currentUserRole, namaGuru: currentUser }).then(res => {
+            // Gunakan Cache agar daftar opsi mapel/kelas/guru muncul instan di percobaan kedua
+            callAPI('getFormOptions', { role: currentUserRole, namaGuru: currentUser }, true).then(res => {
                 hideLoader();
                 if(res && res.success) {
                     if (res.isTU) {
@@ -1150,7 +1170,8 @@
         function openInputIzin() {
             document.getElementById('izin-tanggal').valueAsDate = new Date();
             showLoader("Memuat form...");
-            callAPI('getSemuaGuru').then(res => {
+            // Gunakan Cache agar daftar semua guru dimuat secara instan di percobaan kedua
+            callAPI('getSemuaGuru', null, true).then(res => {
                 hideLoader();
                 if (res && res.success) {
                     document.getElementById('izin-guru').innerHTML = '<option value="">Pilih Guru...</option>' + (res.data || []).map(g => `<option value="${g}">${g}</option>`).join('');
@@ -1179,7 +1200,7 @@
 
         // --- FITUR KALENDER PENDIDIKAN ---
         function checkTodayAgenda() {
-            callAPI('getAgendas').then(res => {
+            callAPI('getAgendas', null, true).then(res => {
                 if(res && res.success && res.todayAgendas && res.todayAgendas.length > 0) {
                     showAgendaModal(res.todayAgendas);
                 }
@@ -1247,7 +1268,8 @@
             container.innerHTML = '<div class="text-center text-gray-400 py-4 text-xs"><i class="fas fa-spinner fa-spin mr-1"></i> Memuat daftar agenda...</div>';
             grid.innerHTML = '<div class="col-span-7 text-center text-gray-400 py-6 text-xs"><i class="fas fa-spinner fa-spin"></i></div>';
             
-            callAPI('getAgendas').then(res => {
+            // Gunakan Cache agar Kalender langsung tampil
+            callAPI('getAgendas', null, true).then(res => {
                 if(res && res.success) {
                     globalAgendas = res.data || [];
                     renderCalendar();
@@ -1384,6 +1406,8 @@
                     showToast("Agenda berhasil disimpan!");
                     document.getElementById('agendaForm').reset();
                     currentDateView = new Date(data.tanggal);
+                    // Hapus cache agenda agar data terbaru bisa termuat
+                    delete appCache['getAgendas_none']; 
                     loadAgendas();
                 } else showToast("Gagal menyimpan agenda.");
             }).catch(() => { hideLoader(); showToast("Koneksi gagal."); });
