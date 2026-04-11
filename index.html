@@ -1803,15 +1803,37 @@
                                 interaction: { mode: 'index', axis: 'x', intersect: false }
                             },
                             plugins: [{
-                                id: 'barLabelsOnPrint',
+                                id: 'barLabelsAlways',
                                 afterDatasetsDraw(chart) {
-                                    if (!document.body.classList.contains('printing-yearly') && !window.matchMedia('print').matches) return;
                                     const { ctx, data } = chart;
                                     chart.getDatasetMeta(0).data.forEach((bar, index) => {
-                                        const label = data.labels[index]; const val = data.datasets[0].data[index]; const barHeight = bar.base - bar.y;
-                                        if (val > 0 && barHeight > 25) { 
-                                            ctx.save(); ctx.translate(bar.x, bar.base - 8); ctx.rotate(-Math.PI / 2); ctx.fillStyle = '#ffffff'; ctx.font = 'bold 11px Poppins, sans-serif'; ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.shadowColor = 'rgba(0,0,0,0.5)'; ctx.shadowBlur = 3;
-                                            ctx.fillText(`${label} (${val})`, 0, 0, barHeight - 16); ctx.restore();
+                                        const label = data.labels[index]; 
+                                        const val = data.datasets[0].data[index]; 
+                                        const barHeight = bar.base - bar.y;
+                                        const barWidth = bar.width;
+                                        
+                                        // Tampilkan label jika bar cukup tinggi (> 30px)
+                                        if (val > 0 && barHeight > 30) { 
+                                            ctx.save(); 
+                                            // Pindahkan titik awal ke bagian bawah bar
+                                            ctx.translate(bar.x, bar.base - 8); 
+                                            // Putar teks 90 derajat ke atas
+                                            ctx.rotate(-Math.PI / 2); 
+                                            ctx.fillStyle = '#ffffff'; 
+                                            
+                                            // Sesuaikan ukuran font dinamis berdasarkan lebar bar (Maks 11px, Min 8px)
+                                            let fontSize = Math.max(8, Math.min(11, barWidth - 2));
+                                            ctx.font = `bold ${fontSize}px Poppins, sans-serif`; 
+                                            
+                                            ctx.textAlign = 'left'; 
+                                            ctx.textBaseline = 'middle'; 
+                                            // Tambahkan bayangan agar teks terbaca walau bar berwarna terang
+                                            ctx.shadowColor = 'rgba(0,0,0,0.6)'; 
+                                            ctx.shadowBlur = 3;
+                                            
+                                            // Gambar teks, batas maksimal panjang adalah tinggi bar - 16px
+                                            ctx.fillText(`${label} (${val})`, 0, 0, barHeight - 16); 
+                                            ctx.restore();
                                         }
                                     });
                                 }
