@@ -948,7 +948,7 @@
             ic.innerHTML = (res.izin && res.izin.length) ? res.izin.map(g => `<li>• ${g}</li>`).join('') : '<li>Tidak ada guru izin</li>';
             
             sac.innerHTML = (res.siswaAbsen && res.siswaAbsen.length) ? res.siswaAbsen.map(s => {
-                let badge = s.keterangan === 'Sakit' ? 'bg-yellow-100 text-yellow-700' : (s.keterangan === 'Izin' ? 'bg-blue-100 text-blue-700' : 'bg-red-100 text-red-700');
+                let badge = s.keterangan === 'Sakit' ? 'bg-yellow-100 text-yellow-700' : (s.keterangan === 'Izin' ? 'bg-blue-100 text-blue-700' : (s.keterangan === 'Bolos' ? 'bg-orange-100 text-orange-700' : 'bg-red-100 text-red-700'));
                 return `<li class="flex justify-between items-center border-b border-gray-50 pb-2 last:border-0 last:pb-0">
                     <div><span class="font-semibold text-gray-700">${s.nama}</span><span class="text-[10px] text-gray-400 ml-1">(${s.kelas})</span></div>
                     <span class="text-[10px] px-2 py-0.5 rounded-full font-bold ${badge}">${s.keterangan}</span></li>`;
@@ -1314,6 +1314,7 @@
                             <select class="siswa-absen-select w-20 text-[10px] p-1.5 border border-gray-300 rounded-lg bg-white focus:ring-1 focus:ring-indigo-500 outline-none shadow-sm transition-all" data-nama="${nama}" onchange="changeAbsenStyle(this)">
                                 <option value="Hadir" ${statusPusat === 'Hadir' ? 'selected' : ''}>Hadir</option>
                                 <option value="Alpa" ${statusPusat === 'Alpa' ? 'selected' : ''}>Alpa</option>
+                                <option value="Bolos" ${statusPusat === 'Bolos' ? 'selected' : ''}>Bolos</option>
                                 <option value="Izin" ${statusPusat === 'Izin' ? 'selected' : ''}>Izin</option>
                                 <option value="Sakit" ${statusPusat === 'Sakit' ? 'selected' : ''}>Sakit</option>
                             </select>
@@ -1349,6 +1350,9 @@
             } else if(val === 'Izin') {
                 selectEl.className = "siswa-absen-select w-20 text-[10px] p-1.5 border border-blue-300 rounded-lg bg-blue-50 text-blue-800 font-bold outline-none transition-all";
                 parentDiv.className = "flex justify-between items-center px-3 py-2.5 transition-colors bg-blue-50/50";
+            } else if(val === 'Bolos') {
+                selectEl.className = "siswa-absen-select w-20 text-[10px] p-1.5 border border-orange-300 rounded-lg bg-orange-50 text-orange-800 font-bold outline-none transition-all";
+                parentDiv.className = "flex justify-between items-center px-3 py-2.5 transition-colors bg-orange-50/50";
             } else if(val === 'Alpa') {
                 selectEl.className = "siswa-absen-select w-20 text-[10px] p-1.5 border border-red-300 rounded-lg bg-red-50 text-red-800 font-bold outline-none transition-all";
                 parentDiv.className = "flex justify-between items-center px-3 py-2.5 transition-colors bg-red-50/50";
@@ -1851,9 +1855,10 @@
                     let absenMap = {};
                     if (res.siswaAbsen && res.siswaAbsen.length > 0) {
                         res.siswaAbsen.forEach(s => {
-                            if(!absenMap[s.nama]) absenMap[s.nama] = { kelas: s.kelas, totalSakit: 0, totalIzin: 0, totalAlpa: 0, records: [] };
+                            if(!absenMap[s.nama]) absenMap[s.nama] = { kelas: s.kelas, totalSakit: 0, totalIzin: 0, totalBolos: 0, totalAlpa: 0, records: [] };
                             if(s.keterangan === 'Sakit') absenMap[s.nama].totalSakit++;
                             else if(s.keterangan === 'Izin') absenMap[s.nama].totalIzin++;
+                            else if(s.keterangan === 'Bolos') absenMap[s.nama].totalBolos++;
                             else if(s.keterangan === 'Alpa') absenMap[s.nama].totalAlpa++;
                         });
                     }
@@ -1865,10 +1870,11 @@
                     if (totalSiswaAbsenUnik > 0) {
                         for (let namaSiswa in absenMap) {
                             let dataSiswa = absenMap[namaSiswa];
-                            let totalAbsenSiswa = dataSiswa.totalSakit + dataSiswa.totalIzin + dataSiswa.totalAlpa;
+                            let totalAbsenSiswa = dataSiswa.totalSakit + dataSiswa.totalIzin + dataSiswa.totalBolos + dataSiswa.totalAlpa;
                             let badgeHtml = '';
                             if(dataSiswa.totalSakit > 0) badgeHtml += `<span class="bg-yellow-100 text-yellow-700 px-1.5 py-0.5 rounded mr-1">Sakit: ${dataSiswa.totalSakit}</span>`;
                             if(dataSiswa.totalIzin > 0) badgeHtml += `<span class="bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded mr-1">Izin: ${dataSiswa.totalIzin}</span>`;
+                            if(dataSiswa.totalBolos > 0) badgeHtml += `<span class="bg-orange-100 text-orange-700 px-1.5 py-0.5 rounded mr-1">Bolos: ${dataSiswa.totalBolos}</span>`;
                             if(dataSiswa.totalAlpa > 0) badgeHtml += `<span class="bg-red-100 text-red-700 px-1.5 py-0.5 rounded">Alpa: ${dataSiswa.totalAlpa}</span>`;
                             summaryHtml += `<li class="flex flex-col text-xs border-b border-gray-50 pb-2 last:border-0"><div class="flex justify-between items-center mb-1"><span class="font-semibold text-gray-700">${namaSiswa} <span class="font-normal text-[10px] text-gray-400">(${dataSiswa.kelas})</span></span><span class="text-[10px] font-bold text-red-500">${totalAbsenSiswa}x Absen</span></div><div class="text-[9px] font-bold flex mt-1">${badgeHtml}</div></li>`;
                         }
