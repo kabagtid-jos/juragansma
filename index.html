@@ -513,37 +513,31 @@
                         </div>
                     </div>
 
-                    <div id="otomatis-absen-container" class="hidden mt-4">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Data Siswa Tidak Hadir</label>
+                    <!-- REVISI UI DAFTAR SELURUH SISWA -->
+                    <div id="absen-kbm-container" class="hidden mt-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Kehadiran Siswa di Kelas Ini</label>
                         <div class="bg-white border border-gray-300 rounded-xl overflow-hidden shadow-sm">
                             
-                            <!-- Absen Pusat (Otomatis) -->
+                            <!-- Summary Pusat -->
                             <div class="bg-gray-50 p-3 border-b border-gray-200">
-                                <p class="text-[10px] font-bold text-gray-500 mb-1 uppercase tracking-wider"><i class="fas fa-server mr-1"></i> Absen Pusat Hari Ini:</p>
+                                <p class="text-[10px] font-bold text-gray-500 mb-1 uppercase tracking-wider"><i class="fas fa-server mr-1"></i> Data Absen Apel/Pusat:</p>
                                 <div id="status-absen-otomatis" class="text-sm text-gray-700"><i class="fas fa-spinner fa-spin mr-2"></i>Menunggu kelas dipilih...</div>
-                                <input type="hidden" id="hidden-absen-otomatis" value="">
                             </div>
                             
-                            <!-- Absen Tambahan (Manual) -->
-                            <div class="p-3 bg-white">
-                                <p class="text-[10px] font-bold text-indigo-600 mb-2 uppercase tracking-wider"><i class="fas fa-user-plus mr-1"></i> Tambahan Absen di Jam Ini:</p>
-                                <div class="flex space-x-2 mb-2">
-                                    <select id="manual-siswa-select" class="flex-1 p-2 border border-gray-300 rounded-lg text-xs bg-white focus:ring-2 focus:ring-indigo-500">
-                                        <option value="">Pilih Siswa...</option>
-                                    </select>
-                                    <select id="manual-ket-select" class="w-24 p-2 border border-gray-300 rounded-lg text-xs bg-white focus:ring-2 focus:ring-indigo-500">
-                                        <option value="Alpa">Alpa</option>
-                                        <option value="Izin">Izin</option>
-                                        <option value="Sakit">Sakit</option>
-                                    </select>
-                                    <button type="button" onclick="tambahAbsenManual()" class="bg-indigo-600 text-white px-3 py-2 rounded-lg hover:bg-indigo-700 transition"><i class="fas fa-plus"></i></button>
+                            <!-- Interactive List Semua Siswa -->
+                            <div class="p-0">
+                                <div class="bg-indigo-50 px-3 py-2 border-b border-indigo-100 flex justify-between items-center">
+                                    <span class="text-[10px] font-bold text-indigo-700 uppercase"><i class="fas fa-users mr-1"></i> Daftar Semua Siswa</span>
+                                    <span class="text-[10px] text-indigo-500 font-medium">Ubah jika ada yang bolos/izin</span>
                                 </div>
-                                <!-- Daftar Chip Siswa Tambahan -->
-                                <div id="manual-absen-list" class="flex flex-wrap gap-2 mt-2 empty:hidden"></div>
+                                <!-- Scrollable Container -->
+                                <div id="daftar-semua-siswa" class="max-h-60 overflow-y-auto custom-scrollbar divide-y divide-gray-100">
+                                    <!-- List Siswa Di-render via JavaScript -->
+                                </div>
                             </div>
-
                         </div>
                     </div>
+                    <!-- AKHIR REVISI UI -->
 
                     <div class="mt-4">
                         <label class="block text-sm font-medium text-gray-700 mb-1">Mata Pelajaran</label>
@@ -763,9 +757,6 @@
         let yearlyChartInstance = null;
         let guruChartInstance = null;
         
-        // --- VARIABEL BARU UNTUK ABSEN MANUAL ---
-        let manualAbsenArray = [];
-
         // Listener Global untuk mereset CSS tambahan sesaat setelah Print dialog ditutup
         window.addEventListener('afterprint', () => { 
             if(guruChartInstance) guruChartInstance.render(); 
@@ -1204,9 +1195,9 @@
 
         function openInputJurnal() {
             showLoader("Menyiapkan form...");
-            document.getElementById('otomatis-absen-container').classList.add('hidden');
-            document.getElementById('hidden-absen-otomatis').value = '';
+            document.getElementById('absen-kbm-container').classList.add('hidden');
             document.getElementById('status-absen-otomatis').innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Menunggu kelas dipilih...';
+            document.getElementById('daftar-semua-siswa').innerHTML = '';
             
             // Gunakan Cache agar daftar opsi mapel/kelas/guru muncul instan di percobaan kedua
             callAPI('getFormOptions', { role: currentUserRole, namaGuru: currentUser }, true).then(res => {
@@ -1260,108 +1251,109 @@
             if (drop && !drop.classList.contains('hidden') && !drop.contains(e.target) && !disp.contains(e.target)) drop.classList.add('hidden');
         });
 
+        // REVISI FUNGSI LOAD SISWA
         function loadSiswa(kelas) {
-            const absenContainer = document.getElementById('otomatis-absen-container');
+            const absenContainer = document.getElementById('absen-kbm-container');
             const statusText = document.getElementById('status-absen-otomatis');
-            const hiddenInput = document.getElementById('hidden-absen-otomatis');
-            const manualSelect = document.getElementById('manual-siswa-select');
+            const listContainer = document.getElementById('daftar-semua-siswa');
             
             if (!kelas) { 
                 absenContainer.classList.add('hidden'); 
-                hiddenInput.value = ''; 
-                manualAbsenArray = [];
-                renderAbsenManual();
+                listContainer.innerHTML = '';
                 return; 
             }
 
             absenContainer.classList.remove('hidden');
             statusText.innerHTML = '<i class="fas fa-spinner fa-spin mr-2 text-indigo-500"></i>Mengecek data absen pusat...';
-            hiddenInput.value = '';
-            manualSelect.innerHTML = '<option value="">Memuat siswa...</option>';
-            
-            // Reset absen manual saat kelas berubah
-            manualAbsenArray = [];
-            renderAbsenManual();
+            listContainer.innerHTML = '<div class="p-4 text-center text-xs text-gray-500"><i class="fas fa-spinner fa-spin mr-1"></i> Memuat daftar siswa...</div>';
             
             // Panggil API Absen Pusat & API Daftar Siswa secara bersamaan
             Promise.all([
                 callAPI('getAbsenSiswaHariIni', kelas),
-                callAPI('getSiswaData', kelas, true) // Gunakan cache untuk daftar siswa
+                callAPI('getSiswaData', kelas, true) // Gunakan cache
             ]).then(([resAbsen, resSiswa]) => {
+                
+                let absenPusatMap = {};
+                
                 // Handle Absen Otomatis
                 if (resAbsen && resAbsen.success) {
-                    if (resAbsen.data && resAbsen.data.length > 0) {
+                    if (resAbsen.data && resAbsen.data.length > 0 && resAbsen.data !== "Nihil") {
                         statusText.innerHTML = `<span class="text-red-600 font-semibold"><i class="fas fa-user-times mr-1"></i> ${resAbsen.data}</span>`;
-                        hiddenInput.value = resAbsen.data;
+                        
+                        // Ekstrak nama siswa dari "Ahmad Budi (Sakit), Siti Aminah (Izin)" menjadi object/map
+                        let autoArr = resAbsen.data.split(", ");
+                        autoArr.forEach(item => {
+                            let match = item.trim().match(/(.*?)\s\((.*?)\)/);
+                            if (match) absenPusatMap[match[1].trim()] = match[2].trim();
+                        });
                     } else {
                         statusText.innerHTML = `<span class="text-green-600 font-semibold"><i class="fas fa-check-circle mr-1"></i> Nihil (Semua hadir saat apel)</span>`;
-                        hiddenInput.value = '';
                     }
                 } else { 
                     statusText.innerHTML = `<span class="text-yellow-600"><i class="fas fa-exclamation-triangle mr-1"></i> Gagal mengecek data pusat.</span>`; 
                 }
 
-                // Handle Daftar Siswa untuk Dropdown Manual
+                // Handle Daftar Siswa dan Render List Checklist
                 if (resSiswa && resSiswa.success && resSiswa.data) {
-                    manualSelect.innerHTML = '<option value="">Pilih Siswa...</option>' + resSiswa.data.map(s => `<option value="${s}">${s}</option>`).join('');
+                    if(resSiswa.data.length === 0) {
+                        listContainer.innerHTML = '<div class="p-4 text-center text-xs text-red-500">Tidak ada data siswa di kelas ini.</div>';
+                        return;
+                    }
+                    
+                    let htmlList = '';
+                    resSiswa.data.forEach((nama, idx) => {
+                        let statusPusat = absenPusatMap[nama] || "Hadir";
+                        let bgClass = statusPusat !== "Hadir" ? "bg-red-50/50" : "bg-white hover:bg-gray-50";
+                        
+                        htmlList += `
+                        <div class="flex justify-between items-center px-3 py-2.5 transition-colors ${bgClass}">
+                            <div class="flex items-center w-2/3 pr-2">
+                                <span class="text-[10px] text-gray-400 w-5 font-mono">${idx+1}.</span>
+                                <span class="text-xs font-semibold text-gray-700 truncate" title="${nama}">${nama}</span>
+                            </div>
+                            <select class="siswa-absen-select w-20 text-[10px] p-1.5 border border-gray-300 rounded-lg bg-white focus:ring-1 focus:ring-indigo-500 outline-none shadow-sm transition-all" data-nama="${nama}" onchange="changeAbsenStyle(this)">
+                                <option value="Hadir" ${statusPusat === 'Hadir' ? 'selected' : ''}>Hadir</option>
+                                <option value="Alpa" ${statusPusat === 'Alpa' ? 'selected' : ''}>Alpa</option>
+                                <option value="Izin" ${statusPusat === 'Izin' ? 'selected' : ''}>Izin</option>
+                                <option value="Sakit" ${statusPusat === 'Sakit' ? 'selected' : ''}>Sakit</option>
+                            </select>
+                        </div>`;
+                    });
+                    
+                    listContainer.innerHTML = htmlList;
+                    
+                    // Set style warna awal berdasarkan isian dropdown
+                    document.querySelectorAll('.siswa-absen-select').forEach(sel => changeAbsenStyle(sel));
+                    
                 } else {
-                    manualSelect.innerHTML = '<option value="">Gagal memuat siswa</option>';
+                    listContainer.innerHTML = '<div class="p-4 text-center text-xs text-red-500">Gagal memuat daftar siswa.</div>';
                 }
 
             }).catch(() => { 
                 statusText.innerHTML = '<span class="text-red-500"><i class="fas fa-wifi mr-1"></i> Koneksi gagal terhubung.</span>'; 
-                manualSelect.innerHTML = '<option value="">Koneksi error</option>';
+                listContainer.innerHTML = '<div class="p-4 text-center text-xs text-red-500">Koneksi terputus.</div>';
             });
         }
 
-        // --- FUNGSI BARU ABSEN MANUAL ---
-        function tambahAbsenManual() {
-            const selectSiswa = document.getElementById('manual-siswa-select');
-            const selectKet = document.getElementById('manual-ket-select');
-            const namaSiswa = selectSiswa.value;
-            const ket = selectKet.value;
-
-            if (!namaSiswa) return showToast("Pilih nama siswa terlebih dahulu!");
-
-            // Cek apakah siswa sudah ditambahkan di list manual
-            const isExist = manualAbsenArray.some(s => s.nama === namaSiswa);
-            if (isExist) return showToast("Siswa ini sudah ditambahkan di list manual!");
-
-            manualAbsenArray.push({ nama: namaSiswa, ket: ket });
+        // FUNGSI UNTUK MERUBAH WARNA SAAT GURU MENGUBAH STATUS SISWA
+        function changeAbsenStyle(selectEl) {
+            let val = selectEl.value;
+            let parentDiv = selectEl.closest('.flex.justify-between');
             
-            // Reset dropdown
-            selectSiswa.value = "";
-            renderAbsenManual();
-        }
-
-        function hapusAbsenManual(index) {
-            manualAbsenArray.splice(index, 1);
-            renderAbsenManual();
-        }
-
-        function renderAbsenManual() {
-            const container = document.getElementById('manual-absen-list');
-            if (manualAbsenArray.length === 0) {
-                container.innerHTML = '';
-                return;
+            if(val === 'Hadir') {
+                selectEl.className = "siswa-absen-select w-20 text-[10px] p-1.5 border border-gray-300 rounded-lg bg-white text-gray-700 font-medium outline-none transition-all";
+                parentDiv.className = "flex justify-between items-center px-3 py-2.5 transition-colors bg-white hover:bg-gray-50";
+            } else if(val === 'Sakit') {
+                selectEl.className = "siswa-absen-select w-20 text-[10px] p-1.5 border border-yellow-300 rounded-lg bg-yellow-50 text-yellow-800 font-bold outline-none transition-all";
+                parentDiv.className = "flex justify-between items-center px-3 py-2.5 transition-colors bg-yellow-50/50";
+            } else if(val === 'Izin') {
+                selectEl.className = "siswa-absen-select w-20 text-[10px] p-1.5 border border-blue-300 rounded-lg bg-blue-50 text-blue-800 font-bold outline-none transition-all";
+                parentDiv.className = "flex justify-between items-center px-3 py-2.5 transition-colors bg-blue-50/50";
+            } else if(val === 'Alpa') {
+                selectEl.className = "siswa-absen-select w-20 text-[10px] p-1.5 border border-red-300 rounded-lg bg-red-50 text-red-800 font-bold outline-none transition-all";
+                parentDiv.className = "flex justify-between items-center px-3 py-2.5 transition-colors bg-red-50/50";
             }
-
-            container.innerHTML = manualAbsenArray.map((item, index) => {
-                let badgeColor = item.ket === 'Sakit' ? 'bg-yellow-100 text-yellow-800 border-yellow-200' : 
-                                (item.ket === 'Izin' ? 'bg-blue-100 text-blue-800 border-blue-200' : 
-                                'bg-red-100 text-red-800 border-red-200');
-
-                return `
-                <div class="flex items-center text-xs border rounded-full pl-3 pr-1 py-1 shadow-sm ${badgeColor}">
-                    <span class="font-semibold mr-1">${item.nama}</span> 
-                    <span class="opacity-75 mr-2">(${item.ket})</span>
-                    <button type="button" onclick="hapusAbsenManual(${index})" class="w-5 h-5 bg-white bg-opacity-50 hover:bg-opacity-100 rounded-full flex items-center justify-center transition">
-                        <i class="fas fa-times text-[10px]"></i>
-                    </button>
-                </div>`;
-            }).join('');
         }
-        // --------------------------------
 
         function submitJournal() {
             const jams = Array.from(document.querySelectorAll('.jam-checkbox:checked')).map(cb => cb.value);
@@ -1376,28 +1368,15 @@
                  guruPengisi = currentUser + " (Ganti " + tuGuruVal + ")"; 
             }
             
-            // --- PENGGABUNGAN DATA ABSEN (PUSAT + MANUAL) ---
-            let autoAbsenStr = document.getElementById('hidden-absen-otomatis').value;
-            let combinedAbsenMap = {};
-
-            // 1. Masukkan data otomatis ke Map
-            if (autoAbsenStr && autoAbsenStr.trim() !== "Nihil" && autoAbsenStr.trim() !== "") {
-                let autoArr = autoAbsenStr.split(", ");
-                autoArr.forEach(item => {
-                    let match = item.trim().match(/(.*?)\s\((.*?)\)/);
-                    if (match) combinedAbsenMap[match[1].trim()] = match[2].trim();
-                });
-            }
-
-            // 2. Masukkan/Timpa dengan data manual (Jika guru menandai absen, override data pusat)
-            manualAbsenArray.forEach(item => {
-                combinedAbsenMap[item.nama] = item.ket;
+            // --- KUMPULKAN SELURUH DATA SISWA YANG TIDAK HADIR ---
+            let finalAbsenArray = [];
+            document.querySelectorAll('.siswa-absen-select').forEach(sel => {
+                if(sel.value !== "Hadir") {
+                    finalAbsenArray.push(`${sel.getAttribute('data-nama')} (${sel.value})`);
+                }
             });
-
-            // 3. Susun kembali menjadi string CSV
-            let finalAbsenArray = Object.keys(combinedAbsenMap).map(nama => `${nama} (${combinedAbsenMap[nama]})`);
             let finalSiswaAbsenStr = finalAbsenArray.length > 0 ? finalAbsenArray.join(', ') : "";
-            // ------------------------------------------------
+            // -----------------------------------------------------
 
             const data = {
                 hari: document.getElementById('input-hari').value,
@@ -1407,7 +1386,7 @@
                 kelas: document.getElementById('input-kelas').value,
                 mapel: document.getElementById('input-mapel').value,
                 materi: document.getElementById('input-materi').value,
-                siswaAbsenStr: finalSiswaAbsenStr, // Kirim string yang sudah digabung
+                siswaAbsenStr: finalSiswaAbsenStr, // Kirim list yang sudah divalidasi oleh guru
                 catatan: document.getElementById('input-catatan').value
             };
 
@@ -1428,7 +1407,7 @@
                     showToast(res.message || "Jurnal disimpan!");
                     document.getElementById('journalForm').reset();
                     filledJamsThisSession.push(...jams);
-                    document.getElementById('otomatis-absen-container').classList.add('hidden');
+                    document.getElementById('absen-kbm-container').classList.add('hidden'); // Tutup area daftar siswa
                     updateJamDisplay(); switchView('view-dashboard');
                     setTimeout(() => { loadDashboardData(); }, 1000);
                 } else { showToast(res ? res.message : "Gagal menyimpan."); }
