@@ -571,7 +571,7 @@ Gunakan form ini untuk mencatat guru yang tidak bisa hadir pada hari ini.
 </div>
 
 <!-- KONTENER RAHASIA UNTUK CETAK JURNAL (Dipindah ke luar app-wrapper) -->
-<div id="print-container-jurnal" class="hidden bg-white w-full h-full text-black pt-2 px-8 pb-8 font-serif" style="background-color: white !important;"></div>
+<div id="print-container-jurnal" class="hidden bg-white w-full h-full text-black pt-0 px-8 pb-8 font-serif" style="background-color: white !important;"></div>
 
 <script>
 const GAS_API_URL="https://script.google.com/macros/s/AKfycbzRBFOwr-FBWj6kDptq22m81kH6rG5GSoYGrUCFN3Q17iZrEqlppkGVcVwCgOp6lDD3eQ/exec";
@@ -1778,24 +1778,23 @@ function generatePrintKolektifHTML(dataArray) {
         </div>
 
         <div class="text-center mb-6">
-            <h3 class="text-lg font-bold underline uppercase">Jurnal Mengajar Guru (Kolektif)</h3>
-            <p class="text-sm font-medium mt-1">Bulan: ${namaBulan}</p>
+            <h3 class="text-lg font-bold underline uppercase">REKAPITULASI JURNAL MENGAJAR</h3>
         </div>
 
-        <table class="text-sm mb-4">
-            <tr><td class="w-32 font-bold py-1">Nama Guru</td><td class="w-4">:</td><td class="py-1">${guruName}</td></tr>
-        </table>
+        <div class="flex justify-between items-center mb-2 font-bold text-sm px-1">
+            <div>Nama Guru: ${guruName}</div>
+            <div>Bulan: ${namaBulan}</div>
+        </div>
 
-        <table class="w-full text-[11px] border-collapse border border-gray-900 mb-6">
+        <table class="w-full text-xs border-collapse border border-gray-900 mb-6">
             <thead>
-                <tr class="bg-gray-200 text-center">
-                    <th class="border border-gray-900 py-2 px-1 w-6">No</th>
-                    <th class="border border-gray-900 py-2 px-1 w-20">Hari, Tanggal</th>
-                    <th class="border border-gray-900 py-2 px-1 w-16">Jam/Kls</th>
-                    <th class="border border-gray-900 py-2 px-1 w-24">Mapel</th>
-                    <th class="border border-gray-900 py-2 px-1">Materi</th>
-                    <th class="border border-gray-900 py-2 px-1">Tindak Lanjut</th>
-                    <th class="border border-gray-900 py-2 px-1 w-20">Absen</th>
+                <tr class="bg-gray-200 text-center font-bold">
+                    <th class="border border-gray-900 py-2 px-2 w-8">No</th>
+                    <th class="border border-gray-900 py-2 px-2 w-28">Hari, Tanggal</th>
+                    <th class="border border-gray-900 py-2 px-2 w-20">Kelas/Jam</th>
+                    <th class="border border-gray-900 py-2 px-2 w-32">Mata Pelajaran</th>
+                    <th class="border border-gray-900 py-2 px-2 text-left">Materi & Evaluasi</th>
+                    <th class="border border-gray-900 py-2 px-2 w-32 text-left">Absensi</th>
                 </tr>
             </thead>
             <tbody class="align-top">
@@ -1805,13 +1804,12 @@ function generatePrintKolektifHTML(dataArray) {
         let absenText = (item.absen && item.absen !== 'Nihil') ? item.absen : "-";
         html += `
                 <tr>
-                    <td class="border border-gray-900 py-1.5 px-1 text-center">${index + 1}</td>
-                    <td class="border border-gray-900 py-1.5 px-1 text-center">${item.hari},<br>${item.tanggal}</td>
-                    <td class="border border-gray-900 py-1.5 px-1 text-center">${item.jam.replace('Jam ', '')}<br><b>${item.kelas}</b></td>
-                    <td class="border border-gray-900 py-1.5 px-1 text-center">${item.mapel}</td>
-                    <td class="border border-gray-900 py-1.5 px-1 whitespace-pre-wrap">${item.materi}</td>
-                    <td class="border border-gray-900 py-1.5 px-1 whitespace-pre-wrap">${item.catatan}</td>
-                    <td class="border border-gray-900 py-1.5 px-1 italic text-center text-[10px]">${absenText}</td>
+                    <td class="border border-gray-900 py-2 px-2 text-center">${index + 1}</td>
+                    <td class="border border-gray-900 py-2 px-2 text-center">${item.hari},<br>${item.tanggal}</td>
+                    <td class="border border-gray-900 py-2 px-2 text-center"><span class="text-sm">${item.kelas}</span><br><span class="text-[9px] text-gray-600">${item.jam}</span></td>
+                    <td class="border border-gray-900 py-2 px-2">${item.mapel}</td>
+                    <td class="border border-gray-900 py-2 px-2 whitespace-pre-wrap"><span class="font-bold">Materi:</span> ${item.materi}<br><br><span class="font-bold">Evaluasi:</span> ${item.catatan}</td>
+                    <td class="border border-gray-900 py-2 px-2">${absenText}</td>
                 </tr>
         `;
     });
@@ -1823,7 +1821,7 @@ function generatePrintKolektifHTML(dataArray) {
         <div class="flex justify-end mt-8" style="page-break-inside: avoid;">
             <div class="text-center w-64">
                 <p class="text-sm mb-1">Bondowoso, ${tanggalHariIni}</p>
-                <p class="text-sm font-bold mb-2">Guru Mata Pelajaran</p>
+                <p class="text-sm mb-2">Guru Mata Pelajaran</p>
                 <div class="h-20 w-full flex items-center justify-center">
                     ${ttdImg ? '<img src="' + ttdImg + '" class="max-h-full max-w-full object-contain">' : '<div class="h-full w-full"></div>'}
                 </div>
@@ -1849,8 +1847,8 @@ function triggerPrintJurnalKolektif() {
         style.id = 'print-style-dynamic';
         document.head.appendChild(style);
     }
-    // Set ukuran kertas A4 Portrait, margin atas 5mm, sisi lain 10mm
-    style.innerHTML = '@media print { @page { size: A4 portrait; margin: 5mm 10mm 10mm 10mm; } }';
+    // Set ukuran kertas A4 Portrait, margin atas 0mm agar mentok ke atas
+    style.innerHTML = '@media print { @page { size: A4 portrait; margin: 0mm 10mm 10mm 10mm; } }';
     document.body.classList.add('printing-jurnal');
     showLoader("Mempersiapkan Laporan Kolektif...");
     setTimeout(() => {
@@ -1866,8 +1864,8 @@ function triggerPrintJurnal() {
         style.id = 'print-style-dynamic';
         document.head.appendChild(style);
     }
-    // Set ukuran kertas A4 Portrait, margin atas 5mm, sisi lain 15mm
-    style.innerHTML = '@media print { @page { size: A4 portrait; margin: 5mm 15mm 15mm 15mm; } }';
+    // Set ukuran kertas A4 Portrait, margin atas 0mm agar mentok ke atas
+    style.innerHTML = '@media print { @page { size: A4 portrait; margin: 0mm 15mm 15mm 15mm; } }';
     document.body.classList.add('printing-jurnal');
     showLoader("Mempersiapkan Dokumen...");
     setTimeout(() => {
