@@ -1748,17 +1748,14 @@ function cetakJurnalKBM(index) {
 function generatePrintKolektifHTML(dataArray) {
     if (dataArray.length === 0) return "";
     
-    // Ambil nama guru murni
     const guruName = dataArray[0].guruOri.includes("(Ganti") ? dataArray[0].guruOri.split("(Ganti")[0].trim() : dataArray[0].guruOri;
-    const bulanFormat = document.getElementById('filter-cj-bulan').value; // format: yyyy-mm
+    const bulanFormat = document.getElementById('filter-cj-bulan').value;
     const dateObj = new Date(bulanFormat + "-01");
     const namaBulan = dateObj.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
 
-    // Format Tanggal Hari ini untuk Footer
     const today = new Date();
     const tanggalHariIni = today.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
 
-    // Cari Tanda Tangan (Ambil dari data KBM pertama yang memiliki TTD)
     let ttdUrlStr = "";
     for(let i=0; i<dataArray.length; i++){
         if(dataArray[i].ttdUrl) {
@@ -1769,8 +1766,7 @@ function generatePrintKolektifHTML(dataArray) {
     let ttdImg = getDirectImageUrl(ttdUrlStr);
 
     let html = `
-    <div class="print-page-1 mb-8" style="page-break-after: auto;">
-        <!-- Kop Surat -->
+    <div style="width: 100%; color: black; font-family: serif;">
         <div class="flex items-center border-b-4 border-double border-gray-900 pb-4 mb-6">
             <div class="mr-6">
                 <img src="https://i.ibb.co.com/8n9zH3y4/Logo-SMA-Unggulan-Abu-Zairi.png" style="width: 80px; height: 80px; object-fit: contain;">
@@ -1792,48 +1788,45 @@ function generatePrintKolektifHTML(dataArray) {
             <tr><td class="w-32 font-bold py-1">Nama Guru</td><td class="w-4">:</td><td class="py-1">${guruName}</td></tr>
         </table>
 
-        <!-- Tabel Kolektif -->
-        <table class="w-full text-xs border-collapse border border-gray-900 mb-6">
+        <table class="w-full text-[11px] border-collapse border border-gray-900 mb-6">
             <thead>
                 <tr class="bg-gray-200 text-center">
-                    <th class="border border-gray-900 py-2 px-2 w-8">No</th>
-                    <th class="border border-gray-900 py-2 px-2 w-32">Hari, Tanggal</th>
-                    <th class="border border-gray-900 py-2 px-2 w-24">Jam & Kelas</th>
-                    <th class="border border-gray-900 py-2 px-2 w-40">Mata Pelajaran</th>
-                    <th class="border border-gray-900 py-2 px-2">Materi Pembelajaran</th>
-                    <th class="border border-gray-900 py-2 px-2">Tindak Lanjut / Evaluasi</th>
-                    <th class="border border-gray-900 py-2 px-2 w-32">Siswa Absen</th>
+                    <th class="border border-gray-900 py-2 px-1 w-8">No</th>
+                    <th class="border border-gray-900 py-2 px-1 w-24">Hari, Tanggal</th>
+                    <th class="border border-gray-900 py-2 px-1 w-20">Jam & Kelas</th>
+                    <th class="border border-gray-900 py-2 px-1 w-32">Mata Pelajaran</th>
+                    <th class="border border-gray-900 py-2 px-1">Materi Pembelajaran</th>
+                    <th class="border border-gray-900 py-2 px-1">Tindak Lanjut / Evaluasi</th>
+                    <th class="border border-gray-900 py-2 px-1 w-28">Siswa Absen</th>
                 </tr>
             </thead>
             <tbody class="align-top">
     `;
 
-    // Looping Data KBM
     dataArray.forEach((item, index) => {
         let absenText = (item.absen && item.absen !== 'Nihil') ? item.absen : "-";
         html += `
                 <tr>
-                    <td class="border border-gray-900 py-2 px-2 text-center">${index + 1}</td>
-                    <td class="border border-gray-900 py-2 px-2">${item.hari},<br>${item.tanggal}</td>
-                    <td class="border border-gray-900 py-2 px-2 text-center">${item.jam.replace('Jam ', '')}<br><b>${item.kelas}</b></td>
-                    <td class="border border-gray-900 py-2 px-2">${item.mapel}</td>
-                    <td class="border border-gray-900 py-2 px-2 whitespace-pre-wrap">${item.materi}</td>
-                    <td class="border border-gray-900 py-2 px-2 whitespace-pre-wrap">${item.catatan}</td>
-                    <td class="border border-gray-900 py-2 px-2 italic text-[10px] text-center">${absenText}</td>
+                    <td class="border border-gray-900 py-1.5 px-1 text-center">${index + 1}</td>
+                    <td class="border border-gray-900 py-1.5 px-1 text-center">${item.hari},<br>${item.tanggal}</td>
+                    <td class="border border-gray-900 py-1.5 px-1 text-center">${item.jam.replace('Jam ', '')}<br><b>${item.kelas}</b></td>
+                    <td class="border border-gray-900 py-1.5 px-1 text-center">${item.mapel}</td>
+                    <td class="border border-gray-900 py-1.5 px-1 whitespace-pre-wrap">${item.materi}</td>
+                    <td class="border border-gray-900 py-1.5 px-1 whitespace-pre-wrap">${item.catatan}</td>
+                    <td class="border border-gray-900 py-1.5 px-1 italic text-center text-[10px]">${absenText}</td>
                 </tr>
         `;
     });
 
-    // Menutup tabel dan menambahkan blok Tanda Tangan Footer
     html += `
             </tbody>
         </table>
 
-        <div class="flex justify-end mt-12 page-break-inside-avoid" style="page-break-inside: avoid;">
+        <div class="flex justify-end mt-8" style="page-break-inside: avoid;">
             <div class="text-center w-64">
                 <p class="text-sm mb-1">Bondowoso, ${tanggalHariIni}</p>
                 <p class="text-sm font-bold mb-2">Guru Mata Pelajaran</p>
-                <div class="h-24 w-full flex items-center justify-center">
+                <div class="h-20 w-full flex items-center justify-center">
                     ${ttdImg ? '<img src="' + ttdImg + '" class="max-h-full max-w-full object-contain">' : '<div class="h-full w-full border-b border-dashed border-gray-900"></div>'}
                 </div>
                 <p class="text-sm font-bold mt-2 underline">${guruName}</p>
@@ -1858,11 +1851,9 @@ function triggerPrintJurnalKolektif() {
         style.id = 'print-style-dynamic';
         document.head.appendChild(style);
     }
-    // Set ukuran kertas menjadi A4 Landscape khusus untuk Laporan Kolektif
-    style.innerHTML = '@media print { @page { size: A4 landscape; margin: 15mm; } }';
-    
+    // Set ukuran kertas A4 Landscape, margin 10mm untuk tabel kolektif agar lebar maksimal
+    style.innerHTML = '@media print { @page { size: A4 landscape; margin: 10mm; } }';
     document.body.classList.add('printing-jurnal');
-    
     showLoader("Mempersiapkan Laporan Kolektif...");
     setTimeout(() => {
         hideLoader();
