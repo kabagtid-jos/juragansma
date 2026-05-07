@@ -1685,10 +1685,9 @@ function generatePrintHTML(dataArray) {
                     <img src="https://i.ibb.co.com/8n9zH3y4/Logo-SMA-Unggulan-Abu-Zairi.png" style="width: 80px; height: 80px; object-fit: contain;">
                 </div>
                 <div class="flex-1 text-center pr-10">
-                    <h1 class="text-2xl font-bold uppercase tracking-wide">YAYASAN PONDOK PESANTREN ABU ZAIRI</h1>
+                    <h1 class="text-xl font-bold uppercase tracking-wide">YAYASAN PONDOK PESANTREN ISLAM SALAFIYAH ABU ZAIRI</h1>
                     <h2 class="text-xl font-extrabold uppercase">SMA UNGGULAN ABU ZAIRI</h2>
-                    <p class="text-xs mt-1">NPSN: 69992015 | Terakreditasi B</p>
-                    <p class="text-[11px] italic">Jl. Raya Sukosari No. 01, Sukosari, Kasemen, Bondowoso, Jawa Timur 68281</p>
+                    <p class="text-[11px] italic mt-1">Jl. Raya Pakisan, RT. 06, RW. 01, Kec. Tlogosari, Kab. Bondowoso, 68272.</p>
                 </div>
             </div>
             <div class="text-center mb-6">
@@ -1772,10 +1771,9 @@ function generatePrintKolektifHTML(dataArray) {
                 <img src="https://i.ibb.co.com/8n9zH3y4/Logo-SMA-Unggulan-Abu-Zairi.png" style="width: 80px; height: 80px; object-fit: contain;">
             </div>
             <div class="flex-1 text-center pr-10">
-                <h1 class="text-2xl font-bold uppercase tracking-wide">YAYASAN PONDOK PESANTREN ABU ZAIRI</h1>
+                <h1 class="text-xl font-bold uppercase tracking-wide">YAYASAN PONDOK PESANTREN ISLAM SALAFIYAH ABU ZAIRI</h1>
                 <h2 class="text-xl font-extrabold uppercase">SMA UNGGULAN ABU ZAIRI</h2>
-                <p class="text-xs mt-1">NPSN: 69992015 | Terakreditasi B</p>
-                <p class="text-[11px] italic">Jl. Raya Sukosari No. 01, Sukosari, Kasemen, Bondowoso, Jawa Timur 68281</p>
+                <p class="text-[11px] italic mt-1">Jl. Raya Pakisan, RT. 06, RW. 01, Kec. Tlogosari, Kab. Bondowoso, 68272.</p>
             </div>
         </div>
 
@@ -1791,13 +1789,13 @@ function generatePrintKolektifHTML(dataArray) {
         <table class="w-full text-[11px] border-collapse border border-gray-900 mb-6">
             <thead>
                 <tr class="bg-gray-200 text-center">
-                    <th class="border border-gray-900 py-2 px-1 w-8">No</th>
-                    <th class="border border-gray-900 py-2 px-1 w-24">Hari, Tanggal</th>
-                    <th class="border border-gray-900 py-2 px-1 w-20">Jam & Kelas</th>
-                    <th class="border border-gray-900 py-2 px-1 w-32">Mata Pelajaran</th>
-                    <th class="border border-gray-900 py-2 px-1">Materi Pembelajaran</th>
-                    <th class="border border-gray-900 py-2 px-1">Tindak Lanjut / Evaluasi</th>
-                    <th class="border border-gray-900 py-2 px-1 w-28">Siswa Absen</th>
+                    <th class="border border-gray-900 py-2 px-1 w-6">No</th>
+                    <th class="border border-gray-900 py-2 px-1 w-20">Hari, Tanggal</th>
+                    <th class="border border-gray-900 py-2 px-1 w-16">Jam/Kls</th>
+                    <th class="border border-gray-900 py-2 px-1 w-24">Mapel</th>
+                    <th class="border border-gray-900 py-2 px-1">Materi</th>
+                    <th class="border border-gray-900 py-2 px-1">Tindak Lanjut</th>
+                    <th class="border border-gray-900 py-2 px-1 w-20">Absen</th>
                 </tr>
             </thead>
             <tbody class="align-top">
@@ -1851,8 +1849,8 @@ function triggerPrintJurnalKolektif() {
         style.id = 'print-style-dynamic';
         document.head.appendChild(style);
     }
-    // Set ukuran kertas A4 Landscape, margin 10mm untuk tabel kolektif agar lebar maksimal
-    style.innerHTML = '@media print { @page { size: A4 landscape; margin: 10mm; } }';
+    // Set ukuran kertas A4 Portrait, margin 10mm untuk tabel kolektif
+    style.innerHTML = '@media print { @page { size: A4 portrait; margin: 10mm; } }';
     document.body.classList.add('printing-jurnal');
     showLoader("Mempersiapkan Laporan Kolektif...");
     setTimeout(() => {
