@@ -206,12 +206,12 @@ Panel Admin Utama
 </div>
 <h3 class="text-gray-800 font-semibold mb-3 text-sm">Informasi Guru Hari Ini</h3>
 <div class="glass-card bg-white p-4 mb-6">
-<div class="grid grid-cols-2 gap-4">
+<div class="space-y-4">
 <div>
 <h4 class="text-[11px] font-bold text-red-500 uppercase tracking-wider mb-2 leading-tight"><i class="fas fa-exclamation-circle mr-1"></i> Belum Isi Jurnal</h4>
-<div id="belum-isi-container" class="text-xs text-gray-600 space-y-2 max-h-40 overflow-y-auto pr-1 custom-scrollbar"></div>
+<div id="belum-isi-container" class="text-xs text-gray-600 space-y-2 max-h-72 overflow-y-auto pr-1 custom-scrollbar"></div>
 </div>
-<div>
+<div class="pt-3 border-t border-gray-100">
 <h4 class="text-[11px] font-bold text-yellow-500 uppercase tracking-wider mb-2 leading-tight"><i class="fas fa-user-clock mr-1"></i> Izin Hari Ini</h4>
 <ul id="izin-container" class="text-xs text-gray-600 pl-2 border-l-2 border-yellow-200 space-y-1"></ul>
 </div>
@@ -782,33 +782,31 @@ function renderBelumIsiCompact(items, fallbackList){
         const cards=Object.keys(grouped).sort((a,b)=>a.localeCompare(b,'id')).map(guru=>{
             const rows=grouped[guru].map(d=>{
                 const kelas=safeHtmlDashboard(d.kelas||'-');
-                const jam=safeHtmlDashboard(d.jam||'-');
                 const mapel=safeHtmlDashboard(d.mapel||'-');
-                const title=`${safeHtmlDashboard(guru)} - ${kelas} - ${mapel} - Jam ${jam}`;
-                return `<div title="${title}" class="bg-white border border-red-100 rounded-lg px-2 py-1.5 shadow-sm min-w-0">
-                    <div class="flex items-center justify-between gap-2">
-                        <span class="font-bold text-red-700 text-[11px] leading-tight break-words min-w-0">${kelas}</span>
-                        <span class="text-[10px] font-semibold text-red-600 bg-red-50 px-1.5 py-0.5 rounded whitespace-nowrap">Jam ${jam}</span>
+                const title=`${safeHtmlDashboard(guru)} - ${kelas} - ${mapel}`;
+                return `<div title="${title}" class="bg-white border border-red-100 rounded-lg px-3 py-2 shadow-sm min-w-0">
+                    <div class="flex items-start gap-2 min-w-0">
+                        <span class="inline-flex items-center justify-center flex-shrink-0 whitespace-nowrap rounded-md bg-red-100 text-red-700 font-extrabold text-[11px] px-2 py-1 leading-none">${kelas}</span>
+                        <span class="text-[11px] text-gray-600 font-medium leading-snug break-words min-w-0 flex-1">${mapel}</span>
                     </div>
-                    <div class="text-[10px] text-gray-500 leading-snug mt-0.5 break-words">${mapel}</div>
                 </div>`;
             }).join('');
-            return `<div class="bg-red-50 border border-red-100 rounded-xl p-2.5">
-                <div class="flex justify-between items-start gap-2 mb-2">
-                    <div class="font-extrabold text-red-800 text-[12px] leading-snug break-words min-w-0">${safeHtmlDashboard(guru)}</div>
-                    <span class="text-[9px] bg-red-100 text-red-700 px-1.5 py-0.5 rounded-full whitespace-nowrap flex-shrink-0">${grouped[guru].length} jadwal</span>
+            return `<div class="bg-red-50 border border-red-100 rounded-xl p-3 w-full">
+                <div class="flex justify-between items-start gap-3 mb-2">
+                    <div class="font-extrabold text-red-800 text-[13px] leading-snug break-words min-w-0 flex-1">${safeHtmlDashboard(guru)}</div>
+                    <span class="text-[9px] bg-red-100 text-red-700 px-2 py-0.5 rounded-full whitespace-nowrap flex-shrink-0">${grouped[guru].length} mapel</span>
                 </div>
                 <div class="grid grid-cols-1 gap-1.5">${rows}</div>
             </div>`;
         }).join('');
         return `<div class="mb-2 text-[10px] font-semibold text-red-500 flex items-center justify-between gap-2">
-            <span><i class="fas fa-list-check mr-1"></i>${guruCount} guru / ${total} jadwal belum diisi</span>
+            <span><i class="fas fa-list-check mr-1"></i>${guruCount} guru / ${total} jurnal belum diisi</span>
         </div>
-        <div class="space-y-2 max-h-56 overflow-y-auto pr-1 custom-scrollbar">${cards}</div>`;
+        <div class="space-y-2 max-h-72 overflow-y-auto pr-1 custom-scrollbar">${cards}</div>`;
     }
     if(Array.isArray(fallbackList)&&fallbackList.length){
         const names=[...new Set(fallbackList.map(g=>String(g||'').trim()).filter(Boolean))];
-        return `<div class="space-y-1.5 max-h-56 overflow-y-auto pr-1 custom-scrollbar">${names.map(g=>`<div class="bg-red-50 border border-red-100 rounded-lg px-2.5 py-2 text-[12px] leading-snug font-semibold text-red-800 break-words">${safeHtmlDashboard(g)}</div>`).join('')}</div>`;
+        return `<div class="space-y-1.5 max-h-72 overflow-y-auto pr-1 custom-scrollbar">${names.map(g=>`<div class="bg-red-50 border border-red-100 rounded-lg px-3 py-2 text-[12px] leading-snug font-semibold text-red-800 break-words">${safeHtmlDashboard(g)}</div>`).join('')}</div>`;
     }
     return '<div class="text-green-500 text-xs"><i class="fas fa-check"></i> Semua guru sudah isi</div>';
 }
