@@ -575,7 +575,6 @@ Gunakan form ini untuk mencatat guru yang tidak bisa hadir pada hari ini.
 
 <script>
 const GAS_API_URL="https://script.google.com/macros/s/AKfycbzRBFOwr-FBWj6kDptq22m81kH6rG5GSoYGrUCFN3Q17iZrEqlppkGVcVwCgOp6lDD3eQ/exec";
-const appCache={};
 let signaturePadCanvas,signatureCtx,isDrawing=false,signatureEmpty=true,isSignatureInit=false;
 function initSignaturePad(){
     signaturePadCanvas=document.getElementById('signature-pad');
@@ -643,21 +642,12 @@ function removeFoto(){
     document.getElementById('foto-preview-container').classList.add('hidden');
     document.getElementById('foto-preview').src='';
 }
-function callAPI(action,payload=null,useCache=false){
-    const cacheKey=action+'_'+(payload?JSON.stringify(payload):'none');
-    if(useCache&&appCache[cacheKey]){
-        return Promise.resolve(appCache[cacheKey]);
-    }
+function callAPI(action,payload=null){
     return fetch(GAS_API_URL,{
         method:'POST',
         headers:{'Content-Type':'text/plain;charset=utf-8'},
         body:JSON.stringify({action:action,payload:payload})
-    }).then(response=>response.json()).then(data=>{
-        if(useCache&&data&&data.success){
-            appCache[cacheKey]=data;
-        }
-        return data;
-    });
+    }).then(response=>response.json());
 }
 let currentUser=null;
 let currentUserRole=null;
@@ -1449,7 +1439,6 @@ function submitAgenda(){
             showToast("Agenda berhasil disimpan!");
             document.getElementById('agendaForm').reset();
             currentDateView=new Date(data.tanggal);
-            delete appCache['getAgendas_none'];
             loadAgendas();
         }else showToast("Gagal menyimpan agenda.");
     }).catch(()=>{hideLoader();showToast("Koneksi gagal.");});
