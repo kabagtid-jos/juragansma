@@ -778,13 +778,22 @@ function renderDashboardData(res){
     const ic=document.getElementById('izin-container');
     const sac=document.getElementById('siswa-absen-container');
     let isSubstituteRole=['TU','Admin','Staff TU','Piket'].includes(currentUserRole);
+    const belumIsiDetail=Array.isArray(res.belumIsiDetail)?res.belumIsiDetail:[];
+
     if(currentUserRole==='Guru'){
         let btnJurnal=document.getElementById('menu-isi-jurnal');
         let hasSchedule=res.jadwal&&res.jadwal.length>0;
-        let isPending=res.belumIsi&&res.belumIsi.some(g=>{
-            let rawG=String(g).trim();let pureName=rawG.includes(" (")?rawG.split(" (")[0].trim():rawG;
-            return pureName===String(currentUser).trim();
-        });
+        let isPending=false;
+
+        if(belumIsiDetail.length){
+            isPending=belumIsiDetail.some(d=>String(d.guru||'').trim()===String(currentUser).trim());
+        }else{
+            isPending=res.belumIsi&&res.belumIsi.some(g=>{
+                let rawG=String(g).trim();let pureName=rawG.includes(" (")?rawG.split(" (")[0].trim():rawG;
+                return pureName===String(currentUser).trim();
+            });
+        }
+
         if(new Date().getDay()===5){
             btnJurnal.onclick=()=>showToast("Hari Jumat libur, tidak ada pengisian jurnal.");
             btnJurnal.classList.add('opacity-60','cursor-not-allowed');
@@ -797,13 +806,20 @@ function renderDashboardData(res){
     }else{
         jc.innerHTML=(res.jadwal&&res.jadwal.length)?res.jadwal.map(j=>`<div class="bg-white border border-gray-100 rounded-lg p-3 shadow-sm flex justify-between items-center border-l-4 border-l-blue-500"><div><h4 class="font-bold text-gray-800 text-sm">${j.mapel}</h4><p class="text-xs text-gray-500">${j.kelas} ${isSubstituteRole?' ('+j.guru+')':''}</p></div><div class="text-xs font-semibold text-blue-600 bg-blue-50 px-2 py-1 rounded">${j.jam}</div></div>`).join(''):'<div class="bg-gray-50 rounded-lg p-3 text-center text-xs text-gray-500">Tidak ada jadwal hari ini</div>';
     }
-    bc.innerHTML=(res.belumIsi&&res.belumIsi.length)?res.belumIsi.map(g=>`<li>• ${g}</li>`).join(''):'<li class="text-green-500"><i class="fas fa-check"></i> Semua guru sudah isi</li>';
+
+    if(belumIsiDetail.length){
+        bc.innerHTML=belumIsiDetail.map(d=>`<li class="mb-1 leading-relaxed">• <span class="font-semibold text-gray-700">${d.guru}</span><br><span class="ml-3 text-[11px] text-red-600">${d.kelas} | ${d.mapel} | Jam ${d.jam}</span></li>`).join('');
+    }else{
+        bc.innerHTML=(res.belumIsi&&res.belumIsi.length)?res.belumIsi.map(g=>`<li>• ${g}</li>`).join(''):'<li class="text-green-500"><i class="fas fa-check"></i> Semua guru sudah isi</li>';
+    }
+
     ic.innerHTML=(res.izin&&res.izin.length)?res.izin.map(g=>`<li>• ${g}</li>`).join(''):'<li>Tidak ada guru izin</li>';
     sac.innerHTML=(res.siswaAbsen&&res.siswaAbsen.length)?res.siswaAbsen.map(s=>{
         let badge=s.keterangan==='Sakit'?'bg-yellow-100 text-yellow-700':(s.keterangan==='Izin'?'bg-blue-100 text-blue-700':(s.keterangan==='Bolos'?'bg-orange-100 text-orange-700':'bg-red-100 text-red-700'));
         return `<li class="flex justify-between items-center border-b border-gray-50 pb-2 last:border-0 last:pb-0"><div><span class="font-semibold text-gray-700">${s.nama}</span><span class="text-[10px] text-gray-400 ml-1">(${s.kelas})</span></div><span class="text-[10px] px-2 py-0.5 rounded-full font-bold ${badge}">${s.keterangan}</span></li>`;
     }).join(''):'<li class="text-green-500 text-xs"><i class="fas fa-check-circle"></i> Semua siswa hadir</li>';
 }
+
 function loadDashboardData(){
     const jc=document.getElementById('jadwal-container');
     const bc=document.getElementById('belum-isi-container');
