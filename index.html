@@ -656,6 +656,7 @@ let filledJamsThisSession=[];
 let yearlyChartInstance=null;
 let guruChartInstance=null;
 let globalJurnalDetailData = []; 
+let dashboardAutoRefreshTimer=null;
 
 window.addEventListener('afterprint',()=>{
     if(guruChartInstance)guruChartInstance.render();
@@ -687,6 +688,8 @@ function switchView(viewId){
     if(viewId==='view-login')wrapper.style.background=isDark?'linear-gradient(to bottom right, #78350f, #b45309)':'linear-gradient(to bottom right, #fef3c7, #d97706)';
     else wrapper.style.background=isDark?'#111827':'#f9fafb';
     wrapper.scrollTop=0;
+    if(viewId==='view-dashboard')startDashboardAutoRefresh();
+    else stopDashboardAutoRefresh();
     if(viewId==='view-input')setTanggalHariIni();
 }
 function switchMonthlyTab(tab){
@@ -854,17 +857,37 @@ function renderDashboardData(res){
     }).join(''):'<li class="text-green-500 text-xs"><i class="fas fa-check-circle"></i> Semua siswa hadir</li>';
 }
 
-function loadDashboardData(){
+function startDashboardAutoRefresh(){
+    stopDashboardAutoRefresh();
+    if(!currentUser)return;
+    dashboardAutoRefreshTimer=setInterval(()=>{
+        const activeDashboard=document.getElementById('view-dashboard')?.classList.contains('active');
+        if(activeDashboard&&currentUser){
+            loadDashboardData(true);
+        }
+    },15000);
+}
+function stopDashboardAutoRefresh(){
+    if(dashboardAutoRefreshTimer){
+        clearInterval(dashboardAutoRefreshTimer);
+        dashboardAutoRefreshTimer=null;
+    }
+}
+function loadDashboardData(silent=false){
     const jc=document.getElementById('jadwal-container');
     const bc=document.getElementById('belum-isi-container');
-    jc.innerHTML='<div class="text-xs text-gray-500 text-center py-2">Memuat...</div>';
-    bc.innerHTML='<div class="text-xs text-gray-500">Memuat...</div>';
+    if(!silent){
+        jc.innerHTML='<div class="text-xs text-gray-500 text-center py-2">Memuat...</div>';
+        bc.innerHTML='<div class="text-xs text-gray-500">Memuat...</div>';
+    }
     const isSubstituteRole=['TU','Admin','Staff TU','Piket'].includes(currentUserRole);
     const payloadGuru=isSubstituteRole?'ALL':currentUser;
     callAPI('getDashboardData',payloadGuru).then(res=>{
         if(res&&res.success)renderDashboardData(res);
-        else jc.innerHTML='<p class="text-xs text-red-500">Gagal memuat data</p>';
-    }).catch(()=>{jc.innerHTML='<p class="text-xs text-red-500">Koneksi terputus</p>';});
+        else if(!silent)jc.innerHTML='<p class="text-xs text-red-500">Gagal memuat data</p>';
+    }).catch(()=>{
+        if(!silent)jc.innerHTML='<p class="text-xs text-red-500">Koneksi terputus</p>';
+    });
 }
 function handleLogin(){
     const niyInput=document.getElementById('niy');
@@ -1237,7 +1260,8 @@ function submitJournal(){
             filledJamsThisSession.push(...jams);
             document.getElementById('absen-kbm-container').classList.add('hidden');
             updateJamDisplay();switchView('view-dashboard');
-            setTimeout(()=>{loadDashboardData();},1000);
+            loadDashboardData();
+            setTimeout(()=>{loadDashboardData(true);},1500);
         }else{showToast(res?res.message:"Gagal menyimpan.");}
     }).catch(()=>{
         hideLoader();
@@ -2148,6 +2172,7 @@ function copyTableToClipboard(tableId){
     document.body.removeChild(textArea);
 }
 function handleLogout(){
+    stopDashboardAutoRefresh();
     currentUser=null;currentUserRole=null;currentUserNiy=null;filledJamsThisSession=[];
     document.getElementById('niy').value='';
     document.getElementById('nama-guru-preview').classList.add('hidden');
