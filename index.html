@@ -642,7 +642,7 @@ function removeFoto(){
     document.getElementById('foto-preview-container').classList.add('hidden');
     document.getElementById('foto-preview').src='';
 }
-function callAPI(action,payload=null){
+function callAPI(action,payload=null,useCache=false){
     return fetch(GAS_API_URL,{
         method:'POST',
         headers:{'Content-Type':'text/plain;charset=utf-8'},
@@ -770,35 +770,42 @@ function renderBelumIsiCompact(items, fallbackList){
     if(detail.length){
         const grouped={};
         detail.forEach(d=>{
-            const kelas=String(d.kelas||'-').trim()||'-';
-            if(!grouped[kelas])grouped[kelas]=[];
-            grouped[kelas].push(d);
+            const guru=String(d.guru||'-').trim()||'-';
+            if(!grouped[guru])grouped[guru]=[];
+            grouped[guru].push(d);
         });
         const total=detail.length;
-        const cards=Object.keys(grouped).sort().map(kelas=>{
-            const rows=grouped[kelas].map(d=>{
-                const guru=safeHtmlDashboard(d.guru||'-');
+        const guruCount=Object.keys(grouped).length;
+        const cards=Object.keys(grouped).sort((a,b)=>a.localeCompare(b,'id')).map(guru=>{
+            const rows=grouped[guru].map(d=>{
+                const kelas=safeHtmlDashboard(d.kelas||'-');
                 const jam=safeHtmlDashboard(d.jam||'-');
                 const mapel=safeHtmlDashboard(d.mapel||'-');
-                const title=`${guru} - ${safeHtmlDashboard(kelas)} - ${mapel} - Jam ${jam}`;
-                return `<span title="${title}" class="inline-flex items-center max-w-full bg-white border border-red-100 text-red-700 rounded-full px-2 py-0.5 text-[10px] leading-tight shadow-sm">
-                    <span class="font-semibold truncate max-w-[94px]">${guru}</span>
-                    <span class="mx-1 text-red-300">•</span>
-                    <span class="whitespace-nowrap">Jam ${jam}</span>
-                </span>`;
+                const title=`${safeHtmlDashboard(guru)} - ${kelas} - ${mapel} - Jam ${jam}`;
+                return `<div title="${title}" class="bg-white border border-red-100 rounded-lg px-2 py-1.5 shadow-sm min-w-0">
+                    <div class="flex items-center justify-between gap-2">
+                        <span class="font-bold text-red-700 text-[11px] leading-tight break-words min-w-0">${kelas}</span>
+                        <span class="text-[10px] font-semibold text-red-600 bg-red-50 px-1.5 py-0.5 rounded whitespace-nowrap">Jam ${jam}</span>
+                    </div>
+                    <div class="text-[10px] text-gray-500 leading-snug mt-0.5 break-words">${mapel}</div>
+                </div>`;
             }).join('');
-            return `<div class="bg-red-50 border border-red-100 rounded-lg p-2">
-                <div class="flex justify-between items-center gap-2 mb-1.5">
-                    <span class="font-bold text-red-700 text-[11px] truncate">${safeHtmlDashboard(kelas)}</span>
-                    <span class="text-[9px] bg-red-100 text-red-600 px-1.5 py-0.5 rounded-full whitespace-nowrap">${grouped[kelas].length} jadwal</span>
+            return `<div class="bg-red-50 border border-red-100 rounded-xl p-2.5">
+                <div class="flex justify-between items-start gap-2 mb-2">
+                    <div class="font-extrabold text-red-800 text-[12px] leading-snug break-words min-w-0">${safeHtmlDashboard(guru)}</div>
+                    <span class="text-[9px] bg-red-100 text-red-700 px-1.5 py-0.5 rounded-full whitespace-nowrap flex-shrink-0">${grouped[guru].length} jadwal</span>
                 </div>
-                <div class="flex flex-wrap gap-1">${rows}</div>
+                <div class="grid grid-cols-1 gap-1.5">${rows}</div>
             </div>`;
         }).join('');
-        return `<div class="mb-1 text-[10px] font-semibold text-red-500"><i class="fas fa-list-check mr-1"></i>${total} jadwal belum diisi</div>${cards}`;
+        return `<div class="mb-2 text-[10px] font-semibold text-red-500 flex items-center justify-between gap-2">
+            <span><i class="fas fa-list-check mr-1"></i>${guruCount} guru / ${total} jadwal belum diisi</span>
+        </div>
+        <div class="space-y-2 max-h-56 overflow-y-auto pr-1 custom-scrollbar">${cards}</div>`;
     }
     if(Array.isArray(fallbackList)&&fallbackList.length){
-        return `<div class="space-y-1 max-h-32 overflow-y-auto pr-1 custom-scrollbar">${fallbackList.map(g=>`<div class="bg-red-50 border border-red-100 rounded-lg px-2 py-1 text-[11px] text-red-700">• ${safeHtmlDashboard(g)}</div>`).join('')}</div>`;
+        const names=[...new Set(fallbackList.map(g=>String(g||'').trim()).filter(Boolean))];
+        return `<div class="space-y-1.5 max-h-56 overflow-y-auto pr-1 custom-scrollbar">${names.map(g=>`<div class="bg-red-50 border border-red-100 rounded-lg px-2.5 py-2 text-[12px] leading-snug font-semibold text-red-800 break-words">${safeHtmlDashboard(g)}</div>`).join('')}</div>`;
     }
     return '<div class="text-green-500 text-xs"><i class="fas fa-check"></i> Semua guru sudah isi</div>';
 }
