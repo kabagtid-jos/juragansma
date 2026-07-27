@@ -573,6 +573,19 @@ Gunakan form ini untuk mencatat guru yang tidak bisa hadir pada hari ini.
 </div>
 </div>
 
+
+<div id="view-monitoring-admin" class="app-view bg-gray-50">
+<div class="bg-white shadow-sm px-4 py-4 flex items-center sticky top-0 z-10">
+<button onclick="switchView('view-dashboard')" class="text-gray-600 p-2"><i class="fas fa-arrow-left"></i></button>
+<h2 class="ml-3 font-semibold">Monitoring Sistem</h2>
+</div>
+<div class="p-6">
+<div id="monitoring-admin-container" class="space-y-4">
+Memuat monitoring...
+</div>
+</div>
+</div>
+
 </div>
 
 <!-- KONTENER RAHASIA UNTUK CETAK JURNAL (Dipindah ke luar app-wrapper) -->
@@ -2209,3 +2222,19 @@ window.addEventListener('DOMContentLoaded',()=>{
 </script>
 </body>
 </html>
+<script>
+function loadMonitoringAdmin(){
+ callAPI('getMonitoringAdminData').then(res=>{
+   if(!res.success)return;
+   const d=res.data;
+   document.getElementById('monitoring-admin-container').innerHTML =
+   `<div class="bg-white rounded-xl p-4 shadow">
+    <b>Total Perubahan Absensi:</b> ${d.totalPerubahanAbsensi}
+    </div>
+    <div class="bg-white rounded-xl p-4 shadow">
+    <b>Perubahan Terakhir</b><br>
+    ${d.perubahanTerakhir.map(x=>`${x.siswa} (${x.lama} → ${x.baru}) oleh ${x.guru}`).join("<br>")}
+    </div>`;
+ });
+}
+</script>
