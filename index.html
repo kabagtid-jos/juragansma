@@ -290,6 +290,11 @@ Anda <b>WAJIB</b> memasang Pemicu (Trigger) di Google Apps Script dengan pengatu
 <input type="text" id="wa-token" class="w-full p-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 bg-gray-50" placeholder="Masukkan Token">
 </div>
 <div class="mb-4">
+<label class="block text-xs font-bold text-gray-700 mb-1">ID Grup WhatsApp Fonnte</label>
+<input type="text" id="wa-group" class="w-full p-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 bg-gray-50" placeholder="Contoh: 628xxxxxxxxxx-xxxxxxxx@g.us">
+<p class="text-[10px] text-gray-500 mt-1">Isi jika ingin mengirim rekap guru belum isi ke grup.</p>
+</div>
+<div class="mb-4">
 <label class="block text-xs font-bold text-gray-700 mb-1">Jam Pengiriman Peringatan</label>
 <select id="wa-jam" class="w-full p-2.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 bg-gray-50">
 <option value="12">12:00 WIB (Siang)</option>
@@ -1054,6 +1059,7 @@ function openWaSettings(){
         if(res&&res.success){
             document.getElementById('wa-aktif').checked=(res.data.aktif==='true');
             document.getElementById('wa-token').value=res.data.token||'';
+            document.getElementById('wa-group').value=res.data.group||'';
             document.getElementById('wa-jam').value=res.data.jam||'14';
             document.getElementById('wa-template').value=res.data.template||`Halo *{nama_guru}*,\n\nKami mengingatkan bahwa Anda masih memiliki tagihan *Jurnal Kelas KBM* yang belum diisi untuk hari ini.\n\nMohon untuk segera melengkapinya.\n\nTerima kasih.`;
             switchView('view-wa-settings');
@@ -1064,6 +1070,7 @@ function submitWaSettings(){
     const data={
         aktif:document.getElementById('wa-aktif').checked?'true':'false',
         token:document.getElementById('wa-token').value,
+        group:document.getElementById('wa-group').value,
         jam:document.getElementById('wa-jam').value,
         template:document.getElementById('wa-template').value
     };
