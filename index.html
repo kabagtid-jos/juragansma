@@ -1227,9 +1227,17 @@ function submitJournal(){
         guruPengisi=currentUser+" (Ganti "+tuGuruVal+")";
     }
     let finalAbsenArray=[];
+    let finalAbsensiObject=[];
     document.querySelectorAll('.siswa-absen-select').forEach(sel=>{
         if(sel.value!=="Hadir"){
-            finalAbsenArray.push(`${sel.getAttribute('data-nama')} (${sel.value})`);
+            let namaSiswa=sel.getAttribute('data-nama');
+            let nisnSiswa=sel.getAttribute('data-nisn') || "";
+            finalAbsenArray.push(`${namaSiswa} (${sel.value})`);
+            finalAbsensiObject.push({
+                nama:namaSiswa,
+                nisn:nisnSiswa,
+                status:sel.value
+            });
         }
     });
     let finalSiswaAbsenStr=finalAbsenArray.length>0?finalAbsenArray.join(', '):"";
@@ -1247,7 +1255,8 @@ function submitJournal(){
         siswaAbsenStr:finalSiswaAbsenStr,
         catatan:document.getElementById('input-catatan').value,
         fotoBase64:fotoBase64Data,
-        ttdBase64:ttdBase64Data
+        ttdBase64:ttdBase64Data,
+        absensiSiswa:finalAbsensiObject
     };
     const btnSubmit=document.querySelector('#journalForm button[type="submit"]');
     btnSubmit.disabled=true;
